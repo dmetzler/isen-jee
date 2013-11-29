@@ -1,20 +1,20 @@
 <bookinfo>
-  <title>My project</title>
-  <subtitle>My book</subtitle>
-  <edition>1.0</edition>
+  <title>Java JEE</title>
+  <subtitle>Java En Entreprise</subtitle>
+  <edition>2013</edition>
   <pubsnumber>1</pubsnumber>
-  <productname>My product</productname>
-  <productnumber>1.0</productnumber>
+  <productname>Cours Java JEE</productname>
+  <productnumber>2013</productnumber>
   <copyright>
-    <year>2010</year>
-    <holder>My company</holder>
+    <year>2013</year>
+    <holder>Damien Metzler</holder>
   </copyright>
   <authorgroup>
     <author>
-      <firstname>John</firstname>
-      <surname>Doe</surname>
+      <firstname>Damien</firstname>
+      <surname>Metzler</surname>
       <affiliation>
-        <shortaffil>Acme</shortaffil>
+        <shortaffil>ISEN</shortaffil>
       </affiliation>
     </author>
   </authorgroup>

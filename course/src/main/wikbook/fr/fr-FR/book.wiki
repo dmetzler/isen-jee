@@ -1,0 +1,12 @@
+= Introduction =
+
+= Echauffement : FizzBuzz =
+
+Avant de commencer à parler de *JEE* à proprement dit, nous allons nous intéresser à un exercice en Java. C'est une exercice qui ne présente aucune difficulté, mais qui va nous permettre d'introduire certains paradigmes qui nous intéresserons dans la suite du cours.
+
+{{include document="1-fizzbuzz.wiki" /}}
+
+= Chapter 2 =
+
+{{include document="chapter2.wiki" /}}
+

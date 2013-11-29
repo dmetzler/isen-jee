@@ -1,0 +1,49 @@
+= Enoncé =
+
+L'exercice suivant s'appelle [[FizzBuzz>>http://en.wikipedia.org/wiki/Fizz_buzz]]. C'est un exercice pour enfant afin de leur permet de se familiariser avec les divisions. Il s'agit de compter de 1 à 199 avec les règles suivantes : 
+
+ * Pour les multiples de 3, afficher «Fizz» au lieu du nombre 
+ * Pour les multiples de 5, afficher «Buzz» au lieu du nombre 
+ * Pour les multiples de 3 et 5, afficher «FizzBuzz» au lieu du nombre 
+
+= Implémentation en Java =
+
+Un implémentation est assez rapide en java  et donne le code suivant :
+
+{{example title="FizzBuzz en java première version"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.GenericFizzBuzz}
+{@include org.isen.fizzbuzz.GenericFizzBuzz}
+{{/java}}
+{{/example}}
+
+ et l'exécution du programme donne le résultat suivant :
+
+{{screen}}
+1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz
+...
+{{/screen}}
+
+Cela ne pose normalement aucun soucis à n'importe quel développeur java. Mais en voyant ce code, on peut se poser quelques questions dans le cadre d'une entreprise :
+
+* Comment garantir que notre code fonctionne ?
+* Comment livre-t-on le programme résultant ?
+* Pourrait-on rendre ce programme modulaire pour rendre certaine parties réutilisables ?
+
+C'est à ces questions que la suite de cette partie tente d'apporter des réponses. 
+
+

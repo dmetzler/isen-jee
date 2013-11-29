@@ -4,14 +4,15 @@
 
 
   <groupId>org.dmetzler.isen</groupId>
-  <artifactId>isen-jee</artifactId>
+  <artifactId>isen-jee-parent</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>ISEN JEE :: parent project</name>
   <description></description>
   <packaging>pom</packaging>
 
   <modules>
-    <module>1-fizzbuzz</module>
+    <module>course</module>
+    <module>code</module>
   </modules>
 
   <properties>
@@ -37,7 +38,7 @@
               </execution>
             </executions>
             <configuration>
-              <sourceDirectory>${wikbook.source}/en/en-US</sourceDirectory>
+              <sourceDirectory>${wikbook.source}/fr/fr-FR</sourceDirectory>
               <sourceFileName>book.wiki</sourceFileName>
               <destinationDirectory>${wikbook.target}/src</destinationDirectory>
               <destinationFileName>index.xml</destinationFileName>
@@ -75,7 +76,7 @@
              <!-- Copy any docbook XML -->
              <preProcess>
                <copy todir="${wikbook.target}/src">
-                 <fileset dir="${wikbook.source}/en/en-US">
+                 <fileset dir="${wikbook.source}/fr/fr-FR">
                    <include name="**/*.xml" />
                  </fileset>
                </copy>
@@ -207,13 +208,47 @@
             <encoding>UTF-8</encoding>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
 
   <dependencyManagement>
     <dependencies>
-      
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.11</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.inject</groupId>
+        <artifactId>guice</artifactId>
+        <version>3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>fizzbuzz</artifactId>
+        <version>${project.version}</version>
+        <classifier>sources</classifier>    
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>fizzbuzz</artifactId>
+        <version>${project.version}</version>        
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
