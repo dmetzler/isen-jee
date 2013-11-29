@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.dmetzler.isen</groupId>
+    <artifactId>isen-jee</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+
+  <artifactId>1-fizzbuzz</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>A documentation module</name>
+
+  <properties>
+    <wikbook.source>${pom.basedir}/src/main/wikbook</wikbook.source>
+    <wikbook.target>${project.build.directory}/wikbook</wikbook.target>
+  </properties>
+
+  <build>
+       <plugins>
+
+          <!-- The wikbook maven plugin generates the docbook document from the wiki source -->
+         <plugin>
+            <groupId>org.wikbook</groupId>
+            <artifactId>wikbook.maven</artifactId>
+          </plugin>
+
+         <!-- Dockbx plugin that generates content -->
+         <plugin>
+            <groupId>org.wikbook</groupId>
+            <artifactId>wikbook.docbkxstyle</artifactId>
+         </plugin>
+
+         <plugin>
+           <groupId>org.wikbook</groupId>
+           <artifactId>wikbook.html2pdf</artifactId>
+         </plugin>
+
+         <!-- Attach the HTML zip -->
+         <plugin>
+           <artifactId>maven-assembly-plugin</artifactId>
+         </plugin>
+
+         <!-- Attach the PDF -->
+         <plugin>
+           <groupId>org.codehaus.mojo</groupId>
+           <artifactId>build-helper-maven-plugin</artifactId>           
+         </plugin>
+       </plugins>
+   </build>
+</project>

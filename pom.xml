@@ -1,0 +1,220 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+
+  <groupId>org.dmetzler.isen</groupId>
+  <artifactId>isen-jee</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>ISEN JEE :: parent project</name>
+  <description></description>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>1-fizzbuzz</module>
+  </modules>
+
+  <properties>
+    <wikbook.source>${pom.basedir}/src/main/wikbook</wikbook.source>
+    <wikbook.target>${project.build.directory}/wikbook</wikbook.target>
+  </properties>
+
+
+  <build>
+    <pluginManagement>
+      <plugins>
+          <!-- The wikbook maven plugin generates the docbook document from the wiki source -->
+         <plugin>
+            <groupId>org.wikbook</groupId>
+            <artifactId>wikbook.maven</artifactId>
+            <version>0.9.45</version>
+            <executions>
+              <execution>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <sourceDirectory>${wikbook.source}/en/en-US</sourceDirectory>
+              <sourceFileName>book.wiki</sourceFileName>
+              <destinationDirectory>${wikbook.target}/src</destinationDirectory>
+              <destinationFileName>index.xml</destinationFileName>
+              <beforeBookBodyXML><![CDATA[
+                 <xi:include href="bookinfo.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+                 <xi:include href="acknowledgements.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+           ]]></beforeBookBodyXML>
+            </configuration>
+          </plugin>
+
+         <!-- Dockbx plugin that generates content -->
+         <plugin>
+            <groupId>org.wikbook</groupId>
+            <artifactId>wikbook.docbkxstyle</artifactId>
+            <version>0.9.45</version>
+           <configuration>
+
+             <!-- Source -->
+             <sourceDirectory>${wikbook.target}/src</sourceDirectory>
+             <includes>index.xml</includes>
+
+             <!-- Highlight source code -->
+             <highlightSource>1</highlightSource>
+
+             <!-- We need to support xinclude -->
+             <xincludeSupported>true</xincludeSupported>
+
+             <!--
+               |  See http://www.sagehill.net/docbookxsl/AnnotateListing.html
+               |  Callouts on imported text
+               -->
+             <useExtensions>1</useExtensions>
+             <calloutsExtension>1</calloutsExtension>
+
+             <!-- Copy any docbook XML -->
+             <preProcess>
+               <copy todir="${wikbook.target}/src">
+                 <fileset dir="${wikbook.source}/en/en-US">
+                   <include name="**/*.xml" />
+                 </fileset>
+               </copy>
+               <copy todir="${wikbook.target}/src/images">
+                 <fileset dir="${wikbook.source}/images">
+                   <include name="**/*.png" />
+                 </fileset>
+               </copy>
+             </preProcess>
+
+             
+           </configuration>
+           <executions>
+             <execution>
+               <id>generate-html</id>
+               <goals>
+                 <goal>generate-html</goal>
+               </goals>
+               <phase>package</phase>
+               <configuration>
+                 <targetDirectory>${wikbook.target}/output/html</targetDirectory>
+                 <htmlCustomization>xsl/bootstrap/html.xsl</htmlCustomization>
+               </configuration>
+             </execution>
+             <execution>
+               <id>generate-xhtml</id>
+               <goals>
+                 <goal>generate-xhtml</goal>
+               </goals>
+               <phase>package</phase>
+               <configuration>
+                 <targetDirectory>${wikbook.target}/output/xhtml</targetDirectory>
+                 <targetFileExtension>html</targetFileExtension>
+                 <xhtmlCustomization>xsl/simple/pdf.xsl</xhtmlCustomization>
+               </configuration>
+             </execution>
+           </executions>
+           <dependencies>
+             <dependency>
+               <groupId>org.docbook</groupId>
+               <artifactId>docbook-xml</artifactId>
+               <version>4.4</version>
+               <scope>runtime</scope>
+             </dependency>
+           </dependencies>
+         </plugin>
+
+         <plugin>
+           <groupId>org.wikbook</groupId>
+           <artifactId>wikbook.html2pdf</artifactId>
+           <version>0.9.45</version>
+           <executions>
+           <execution>
+             <phase>package</phase>
+             <goals>
+               <goal>transform</goal>
+             </goals>
+           </execution>
+           </executions>
+           <configuration>
+             <sourceDirectory>${wikbook.target}/output/xhtml</sourceDirectory>
+             <sourceFileName>index.html</sourceFileName>
+             <destinationDirectory>${wikbook.target}/output/pdf</destinationDirectory>
+             <destinationFileName>index.pdf</destinationFileName>
+           </configuration>
+         </plugin>
+
+         <!-- Attach the HTML zip -->
+         <plugin>
+           <artifactId>maven-assembly-plugin</artifactId>
+           <executions>
+             <execution>
+               <phase>package</phase>
+               <goals>
+                 <goal>single</goal>
+               </goals>
+               <configuration>
+                 <descriptors>
+                   <descriptor>src/main/assembly/html.xml</descriptor>
+                 </descriptors>
+               </configuration>
+             </execution>
+           </executions>
+         </plugin>
+
+         <!-- Attach the PDF -->
+         <plugin>
+           <groupId>org.codehaus.mojo</groupId>
+           <artifactId>build-helper-maven-plugin</artifactId>
+           <executions>
+             <execution>
+               <id>attach-artifacts</id>
+               <phase>package</phase>
+               <goals>
+                 <goal>attach-artifact</goal>
+               </goals>
+               <configuration>
+                 <artifacts>
+                   <artifact>
+                     <file>target/wikbook/output/pdf/index.pdf</file>
+                     <type>pdf</type>
+                   </artifact>
+                 </artifacts>
+               </configuration>
+             </execution>
+           </executions>
+         </plugin>
+
+        <plugin>
+          <groupId>ch.elca.el4j.maven.plugins</groupId>
+          <artifactId>maven-depgraph-plugin</artifactId>
+          <version>1.7</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.7</source>
+            <target>1.7</target>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.4</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      
+    </dependencies>
+  </dependencyManagement>
+
+</project>

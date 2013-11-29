@@ -1,0 +1,10 @@
+The preface is any content before a wiki section.
+
+= Chapter 1 =
+
+{{include document="chapter1.wiki" /}}
+
+= Chapter 2 =
+
+{{include document="chapter2.wiki" /}}
+

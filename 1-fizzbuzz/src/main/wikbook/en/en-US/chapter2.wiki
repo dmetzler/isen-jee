@@ -1,0 +1,3 @@
+The chapter 2 shows an image
+
+[[image:images/controller.png||title="The controller" align="center" html:scale="50" fo:width="50mm]]
