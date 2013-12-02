@@ -52,12 +52,23 @@
    <dependencies>
     <dependency>
       <groupId>org.dmetzler.isen</groupId>
-      <artifactId>fizzbuzz</artifactId>  
+      <artifactId>fizzbuzz-course</artifactId>  
       <classifier>sources</classifier>    
     </dependency>
     <dependency>
       <groupId>org.dmetzler.isen</groupId>
-      <artifactId>fizzbuzz</artifactId>        
+      <artifactId>fizzbuzz-course</artifactId>        
     </dependency>
+    <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>fizzbuzz-course</artifactId>
+        <type>test-jar</type> 
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>fizzbuzz-course</artifactId>
+        <type>test-jar</type> 
+        <classifier>sources</classifier>    
+      </dependency>
    </dependencies>
 </project>

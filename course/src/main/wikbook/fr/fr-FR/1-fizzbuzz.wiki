@@ -6,6 +6,8 @@ L'exercice suivant s'appelle [[FizzBuzz>>http://en.wikipedia.org/wiki/Fizz_buzz]
  * Pour les multiples de 5, afficher «Buzz» au lieu du nombre 
  * Pour les multiples de 3 et 5, afficher «FizzBuzz» au lieu du nombre 
 
+
+
 = Implémentation en Java =
 
 Un implémentation est assez rapide en java  et donne le code suivant :
@@ -45,5 +47,250 @@ Cela ne pose normalement aucun soucis à n'importe quel développeur java. Mais 
 * Pourrait-on rendre ce programme modulaire pour rendre certaine parties réutilisables ?
 
 C'est à ces questions que la suite de cette partie tente d'apporter des réponses. 
+
+
+= Comment garantir que notre code fonctionne ? =
+
+A part exécuter notre programme et vérifiee la sortie de celui-ci, nous ne pouvons pas savoir si il fonctionne comme nous le voulons. Dans le case de FizzBuzz, ce n'est pas forcément très grave, mais si c'est un programme pour faire décoller une fusée c'est déjà moins envisageable. 
+
+
+== Test Driven Development ==
+La solution à ce problème consiste à inverser notre manière de penser et de commencer à écrire des tests avant même d'écrire l'implémentation. Cette méthode s'appelle **Test Driven Development** et a été popularisée par l'arrivée des méthodes agiles et notament de XP (eXtreme Programming).
+
+
+
+La méthode en elle même est très simple et se décompose en quatre étapes : 
+
+=== Ecrire un test ===
+
+On commence par se poser la question du plus petit test possible. Si le test consiste à vérifier qu'on a bien affiché les nombres de 1 à 199 et qu'on a bien remplacé les nombres par leur représentation, le test est trop gros. Il va donc falloir découper notre programmes en taches unitaires. 
+
+=== Faire échouer le test (Red) ===
+
+Il faut ensuite faire échouer le test. Cela peut paraitre étrange, mais si le test passe déjà, cela permet d'éviter d'avoir à coder des choses en trop, ou cela peut vouloir dire que le test en lui même n'est pas bon. 
+
+=== Faire passer le test (Green) ===
+
+On peut maintenant implémenter le code qui fera passer notre test. 
+
+=== Refactorer le code produit ===
+
+Cette étape est primordiale dans l'approche TDD. Si on ne refactore pas son code, cela veut dire qu'au bout d'un moment, le code va devenir un gros sac de noeuds qu'il sera très difficile à maintenir. Cette dernière étape demande du courage et de l'auto-critique : 
+ 
+ * il faut passer du temps pour réécrire du code qui marche déjà.
+ * il faut critiquer le code que l'on vient juste d'écrire.
+
+Le refactoring s'effectue aussi bien sur le code du programme que sur le code de test. C'est uniquement en applicant un refactoring consciencieux que l'on peut prétendre à faire de l'architecture émergente : celle-ci se dessine au fur et à mesure des refactorings successifs.
+
+== Quels sont les tests pour FizzBuzz ? ==
+
+Avec FizzBuzz, on a un programme ultra simple et on peut se poser la question de savoir quels sont les tests pour cette application. Nous allons un peu pousser le modèle pour illustrer les différentes phases.
+
+=== On doit savoir itérer jusque 199 ==
+
+Commençons par écrire un test avec ce que l'on attend.
+
+{{example title="FizzBuzz : premier test"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzzTest#itCanIterateOverARange()}
+{@include org.isen.fizzbuzz.FizzBuzzTest#itCanIterateOverARange()}
+{{/java}}
+{{/example}}
+
+
+{{note}}
+L'annotation {{code}}@Test{{/code}} définit depuis JUnit4 les méthodes de tests devant être exécutées par JUnit. Pour exécuter cette méthode, il faut configurer JUnit au niveau de son IDE et lancer les tests.
+{{/note}}
+
+Pour que ce test passe, on peut coder la classe {{code}}Range{{/code}} suivante : 
+
+{{example title="FizzBuzz : classe Range"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.Range}
+{@include org.isen.fizzbuzz.Range}
+{{/java}}
+{{/example}}
+
+
+Notre premier test doit passer au vert. Un deuxième test peut être de vérifier que l'on renvoit une exception si on dépasse la valeur maximale. 
+
+{{example title="FizzBuzz : deuxième test"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzzTest#itSendsAnExceptionWhenCallingNextOnLastValue()}
+{@include org.isen.fizzbuzz.FizzBuzzTest#itSendsAnExceptionWhenCallingNextOnLastValue()}
+{{/java}}
+{{/example}}
+
+A ce stade, on peut déjà imaginer un refactoring : dans les deux tests on itère sur le range en utilisant le même code. On peut factoriser cette partie de code dans une méthode. Cela donne :
+
+{{example title="FizzBuzz : premier refactoring"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzzTest#itCanIterateOverARange2()}
+{@include org.isen.fizzbuzz.FizzBuzzTest#itCanIterateOverARange2()}
+{@javadoc org.isen.fizzbuzz.FizzBuzzTest#itSendsAnExceptionWhenCallingNextOnLastValue2()}
+{@include org.isen.fizzbuzz.FizzBuzzTest#itSendsAnExceptionWhenCallingNextOnLastValue2()}
+{@javadoc org.isen.fizzbuzz.FizzBuzzTest#goToEnd(org.isen.fizzbuzz.Range)}
+{@include org.isen.fizzbuzz.FizzBuzzTest#goToEnd(org.isen.fizzbuzz.Range)}
+{{/java}}
+{{/example}}
+
+
+{{note}}
+Une des manières de détecter du refactoring possible est de regarder les bout de code dupliqués. Ils représentent souvent une partie qui peut être externalisée dans une méthode.... qui pourrait elle même être testée puisque représentant un fonctionnement unitaire.
+
+Des outils permettent d'ailleurs de détecter les parties de codes dupliquées comme CPD : Copy/Paste detector. 
+{{/note}}
+
+
+== On doit savoir transformer un nombre en chaine de caractère == 
+
+Ce test correspond à tester le business de l'application. On va donc tester pour quelques valeurs de référence que notre méthode fonctionne. 
+
+Encore une fois on va faire appel à une classe que l'on appelera FizzBuzzTransformer et qui va contenir le métier de la transformation :
+
+{{example title="FizzBuzz : test de l'algorithme"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzzTest#itCanTransformNumbers()}
+{@include org.isen.fizzbuzz.FizzBuzzTest#itCanTransformNumbers()}
+{{/java}}
+{{/example}}
+
+Pour l'implémentation, il suffit de reprendre le code de notre classe du début : 
+
+{{example title="FizzBuzz : FizzBuzzTransformer"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.GenericFizzBuzzTransformer}
+{@include org.isen.fizzbuzz.GenericFizzBuzzTransformer}
+{{/java}}
+{{/example}}
+
+
+== On sait transformer un Range ==
+
+Pour ce dernier test, on va faire appel à la programmation fonctionnelle. Même si c'est un paradigmen dans lequel Java n'est pas forcément très à l'aise, il est possible d'utiliser certains de ces principes. 
+
+Nous disposons d'un ensemble (Range) que nous devons transformer en un autre ensemble par le biai d'une fonction qui est ici représentée par la méthode transform de FizzBuzzTransformer. En programmation fonctionnelle, cette opération s'appelle un map et nous allons l'implémenter dans la classe Range. 
+
+{{code}}
+public class Range {
+  
+  ...
+
+  public Iterator<String> map(Function<Integer, String> function) {
+      ...
+  }
+}
+{{/code}}
+
+
+Nous définissons ici le concept de fonction d'un entier vers une chaine de caractères. L'idée est de pouvoir utiliser cette construction sous la forme suivante : 
+
+{{code}}
+Iterator<String> fizzBuzzIterator = new Range(199).map(new FizzBuzzTransformer());
+{{/code}}
+
+Pour tester cette fonction map(), nous allons tout d'abord la tester avec une fonction simple :
+
+{{example title="FizzBuzz : test de l'algorithme"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzzTest#itCanMapARange()}
+{@include org.isen.fizzbuzz.FizzBuzzTest#itCanMapARange()}
+{{/java}}
+{{/example}}
+
+
+
+{{note}}
+La construction de la fonction double utilise ce qu'on appelle un classe anonyme : elle n'a pas de nom, c'est juste une classe appelée à l'endroit où elle est définit. 
+{{/note}}
+
+Il nous faut alors définir ce qu'est une fonction. Pour cela on va définir l'interface Function suivante : 
+
+{{example title="FizzBuzz : interface Function"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.Function}
+{@include org.isen.fizzbuzz.Function}
+{{/java}}
+{{/example}}
+
+Ce n'est ni plus ni moins que la déclaration mathématique d'une fonction : un ensemble T1 entrée et T2 en sortie. 
+
+
+Il nous reste à implémenter la méthode map() de la classe Range :
+
+
+{{example title="FizzBuzz : la fonction map"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.GenericMappableRange#map(org.isen.fizzbuzz.Function)}
+{@include org.isen.fizzbuzz.GenericMappableRange#map(org.isen.fizzbuzz.Function)}
+{{/java}}
+{{/example}}
+
+{{note}}
+L'intérêt d'une telle construction est que l'on a pas besoin de calculer toutes les valeurs de l'itérateur dès le début. On les construit au fur et à mesure que le programme appelant en a besoin. 
+
+Dans notre cas, le calcul est très simple, mais imaginons que la fonction fasse appel à des calculs intenses et que l'algorithme appelant décide de s'arrêter à un moment donnée et n'aille pas //au bout// de l'itérateur. Dans ce cas, il ne faut faire les calculs qu'au fur et à mesure.
+{{/note}}
+
+== Assemblons tout ensemble ==
+
+Nos test sont désormais vert. Nous allons pouvoir utiliser nos différentes classes pour implémenter notre programme principal. Cela donne :
+
+{{example title="FizzBuzz : programme principal"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.GenericFizzBuzz2}
+{@include org.isen.fizzbuzz.GenericFizzBuzz2}
+{{/java}}
+{{/example}}
+
+
+Le programme s'exécute et nous donne exactement la même chose.... L'implémentation, à l'inverse, n'a rien à voir et possède la particularité d'être testée. Cette propriété nous permet de vérifier que le code fonctionne toujours lorsque l'on change le code pour par exemple le refactorer. 
+
+Dans notre cas, nous disposons d'un classe Range qui possède une méthode map(). On pourrait extraire cette particularité dans une classe abstraite Mappable qui contiendrait une implémentation par défaut pouvant être appelée pour n'importe quel itérateur et pas seulement des itérateurs d'entiers. 
+
+La classe ##Range## n'implémentera plus directement ##Iterator<Integer>## mais héritera de ##Mappable<Integer>##. Voici ci dessous la classe Mappable : 
+
+{{example title="FizzBuzz : classe Mappable"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.Mappable}
+{@include org.isen.fizzbuzz.Mappable}
+{{/java}}
+{{/example}}
+
+La classe Range devient alors :
+
+{{example title="FizzBuzz : classe Range"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.MappableRange}
+{@include org.isen.fizzbuzz.MappableRange}
+{{/java}}
+{{/example}}
+
+
+En réexécutant les tests, on peut constater que le programme fonctionne toujours. L'intérêt des test est ici flagrant : on peut modifier du code en étant sûr que les fonctionnalités sont toujours là. Lorsque l'on arrive sur une application inconnue et que l'on doit modifier du code, on le fait d'autant plus sereinement que la couverture de test est importante. 
+
+
+
+= Comment livrer son code ? = 
+
+Nous avons réalisé notre programme et nous sommes maintenant sûrs que celui-ci fonctionne. Il nous faut maintenant le livrer. Le packaging par défaut en java est le fichier ##JAR##. Pour construire un fichier JAR à la main c'est un peu compliqué. 
+
+Pour automatiser toutes ces phases de build, plusieurs outils sont apparus comme standard, bien que ne faisant pas partie du JDK par défaut. 
+
+== Gestionnaire de source
+
+== Maven ==
+
+TODO
+
+
+== Jenkins ==
+
+TODO
+
+
+== Sonar == 
+
+TODO
 
 

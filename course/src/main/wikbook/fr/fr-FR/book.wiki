@@ -6,7 +6,4 @@ Avant de commencer à parler de *JEE* à proprement dit, nous allons nous intér
 
 {{include document="1-fizzbuzz.wiki" /}}
 
-= Chapter 2 =
-
-{{include document="chapter2.wiki" /}}
 

@@ -18,6 +18,7 @@
 
   <modules>
     <module>fizzbuzz</module>
+    <module>fizzbuzz-course</module>
   </modules>
 
 </project>

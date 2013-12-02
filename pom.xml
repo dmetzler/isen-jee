@@ -191,6 +191,19 @@
           <version>1.7</version>
         </plugin>
 
+        <plugin> 
+            <groupId>org.apache.maven.plugins</groupId> 
+            <artifactId>maven-jar-plugin</artifactId> 
+            <version>2.2</version> 
+            <executions> 
+                <execution> 
+                    <goals> 
+                        <goal>test-jar</goal> 
+                    </goals> 
+                </execution> 
+            </executions> 
+        </plugin> 
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -216,6 +229,7 @@
               <id>attach-sources</id>
               <goals>
                 <goal>jar</goal>
+                <goal>test-jar</goal>
               </goals>
             </execution>
           </executions>
@@ -239,14 +253,27 @@
 
       <dependency>
         <groupId>org.dmetzler.isen</groupId>
-        <artifactId>fizzbuzz</artifactId>
+        <artifactId>fizzbuzz-course</artifactId>
         <version>${project.version}</version>
         <classifier>sources</classifier>    
       </dependency>
       <dependency>
         <groupId>org.dmetzler.isen</groupId>
-        <artifactId>fizzbuzz</artifactId>
+        <artifactId>fizzbuzz-course</artifactId>
         <version>${project.version}</version>        
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>fizzbuzz-course</artifactId>
+        <version>${project.version}</version>        
+        <type>test-jar</type> 
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>fizzbuzz-course</artifactId>
+        <version>${project.version}</version>        
+        <type>test-jar</type> 
+        <classifier>sources</classifier>    
       </dependency>
 
     </dependencies>

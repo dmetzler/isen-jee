@@ -1,0 +1,9 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<testsuite name="FizzBuzzTest" tests="3" failures="0" errors="0" timestamp="2013-11-23T21:18:11" hostname="pc11.home" time="0.002">
+  <properties/>
+  <testcase name="itCanMapARange" classname="FizzBuzzTest" time="0.001"/>
+  <testcase name="itCanTransformNumbers" classname="FizzBuzzTest" time="0.0"/>
+  <testcase name="itCanIterateOverARange" classname="FizzBuzzTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
