@@ -14,8 +14,14 @@ public class CollectionsTest {
 
     @Test
     public void iShouldBeAbleToConcatenateStrings() throws Exception {
-        assertThat(CollectionLib.concatenate(START_LIST)).isEqualTo(
-                "UN, DEUX, TROIS");
+        // Given a list
+        List<String> list = START_LIST;
+
+        // When i apply the concatenat methode
+        String result = CollectionLib.concatenate(list);
+
+        // Then it returns the list concatenated
+        assertThat(result).isEqualTo("UN, DEUX, TROIS");
     }
 
     @Test
