@@ -1,10 +1,10 @@
 = Enoncé =
 
-L'exercice suivant s'appelle [[FizzBuzz>>http://en.wikipedia.org/wiki/Fizz_buzz]]. C'est un exercice pour enfant afin de leur permet de se familiariser avec les divisions. Il s'agit de compter de 1 à 199 avec les règles suivantes : 
+L'exercice suivant s'appelle [[FizzBuzz>>http://en.wikipedia.org/wiki/Fizz_buzz]]. C'est un exercice pour enfant afin de leur permet de se familiariser avec les divisions. Il s'agit de compter de 1 à 199 avec les règles suivantes :
 
- * Pour les multiples de 3, afficher «Fizz» au lieu du nombre 
- * Pour les multiples de 5, afficher «Buzz» au lieu du nombre 
- * Pour les multiples de 3 et 5, afficher «FizzBuzz» au lieu du nombre 
+ * Pour les multiples de 3, afficher «Fizz» au lieu du nombre
+ * Pour les multiples de 5, afficher «Buzz» au lieu du nombre
+ * Pour les multiples de 3 et 5, afficher «FizzBuzz» au lieu du nombre
 
 
 
@@ -46,12 +46,12 @@ Cela ne pose normalement aucun soucis à n'importe quel développeur java. Mais 
 * Comment livre-t-on le programme résultant ?
 * Pourrait-on rendre ce programme modulaire pour rendre certaine parties réutilisables ?
 
-C'est à ces questions que la suite de cette partie tente d'apporter des réponses. 
+C'est à ces questions que la suite de cette partie tente d'apporter des réponses.
 
 
 = Comment garantir que notre code fonctionne ? =
 
-A part exécuter notre programme et vérifiee la sortie de celui-ci, nous ne pouvons pas savoir si il fonctionne comme nous le voulons. Dans le case de FizzBuzz, ce n'est pas forcément très grave, mais si c'est un programme pour faire décoller une fusée c'est déjà moins envisageable. 
+A part exécuter notre programme et vérifiee la sortie de celui-ci, nous ne pouvons pas savoir si il fonctionne comme nous le voulons. Dans le case de FizzBuzz, ce n'est pas forcément très grave, mais si c'est un programme pour faire décoller une fusée c'est déjà moins envisageable.
 
 
 == Test Driven Development ==
@@ -59,24 +59,24 @@ La solution à ce problème consiste à inverser notre manière de penser et de 
 
 
 
-La méthode en elle même est très simple et se décompose en quatre étapes : 
+La méthode en elle même est très simple et se décompose en quatre étapes :
 
 === Ecrire un test ===
 
-On commence par se poser la question du plus petit test possible. Si le test consiste à vérifier qu'on a bien affiché les nombres de 1 à 199 et qu'on a bien remplacé les nombres par leur représentation, le test est trop gros. Il va donc falloir découper notre programmes en taches unitaires. 
+On commence par se poser la question du plus petit test possible. Si le test consiste à vérifier qu'on a bien affiché les nombres de 1 à 199 et qu'on a bien remplacé les nombres par leur représentation, le test est trop gros. Il va donc falloir découper notre programmes en taches unitaires.
 
 === Faire échouer le test (Red) ===
 
-Il faut ensuite faire échouer le test. Cela peut paraitre étrange, mais si le test passe déjà, cela permet d'éviter d'avoir à coder des choses en trop, ou cela peut vouloir dire que le test en lui même n'est pas bon. 
+Il faut ensuite faire échouer le test. Cela peut paraitre étrange, mais si le test passe déjà, cela permet d'éviter d'avoir à coder des choses en trop, ou cela peut vouloir dire que le test en lui même n'est pas bon.
 
 === Faire passer le test (Green) ===
 
-On peut maintenant implémenter le code qui fera passer notre test. 
+On peut maintenant implémenter le code qui fera passer notre test.
 
 === Refactorer le code produit ===
 
-Cette étape est primordiale dans l'approche TDD. Si on ne refactore pas son code, cela veut dire qu'au bout d'un moment, le code va devenir un gros sac de noeuds qu'il sera très difficile à maintenir. Cette dernière étape demande du courage et de l'auto-critique : 
- 
+Cette étape est primordiale dans l'approche TDD. Si on ne refactore pas son code, cela veut dire qu'au bout d'un moment, le code va devenir un gros sac de noeuds qu'il sera très difficile à maintenir. Cette dernière étape demande du courage et de l'auto-critique :
+
  * il faut passer du temps pour réécrire du code qui marche déjà.
  * il faut critiquer le code que l'on vient juste d'écrire.
 
@@ -102,7 +102,7 @@ Commençons par écrire un test avec ce que l'on attend.
 L'annotation {{code}}@Test{{/code}} définit depuis JUnit4 les méthodes de tests devant être exécutées par JUnit. Pour exécuter cette méthode, il faut configurer JUnit au niveau de son IDE et lancer les tests.
 {{/note}}
 
-Pour que ce test passe, on peut coder la classe {{code}}Range{{/code}} suivante : 
+Pour que ce test passe, on peut coder la classe {{code}}Range{{/code}} suivante :
 
 {{example title="FizzBuzz : classe Range"}}
 {{java}}
@@ -112,7 +112,7 @@ Pour que ce test passe, on peut coder la classe {{code}}Range{{/code}} suivante 
 {{/example}}
 
 
-Notre premier test doit passer au vert. Un deuxième test peut être de vérifier que l'on renvoit une exception si on dépasse la valeur maximale. 
+Notre premier test doit passer au vert. Un deuxième test peut être de vérifier que l'on renvoit une exception si on dépasse la valeur maximale.
 
 {{example title="FizzBuzz : deuxième test"}}
 {{java}}
@@ -138,13 +138,13 @@ A ce stade, on peut déjà imaginer un refactoring : dans les deux tests on itè
 {{note}}
 Une des manières de détecter du refactoring possible est de regarder les bout de code dupliqués. Ils représentent souvent une partie qui peut être externalisée dans une méthode.... qui pourrait elle même être testée puisque représentant un fonctionnement unitaire.
 
-Des outils permettent d'ailleurs de détecter les parties de codes dupliquées comme CPD : Copy/Paste detector. 
+Des outils permettent d'ailleurs de détecter les parties de codes dupliquées comme CPD : Copy/Paste detector.
 {{/note}}
 
 
-== On doit savoir transformer un nombre en chaine de caractère == 
+== On doit savoir transformer un nombre en chaine de caractère ==
 
-Ce test correspond à tester le business de l'application. On va donc tester pour quelques valeurs de référence que notre méthode fonctionne. 
+Ce test correspond à tester le business de l'application. On va donc tester pour quelques valeurs de référence que notre méthode fonctionne.
 
 Encore une fois on va faire appel à une classe que l'on appelera FizzBuzzTransformer et qui va contenir le métier de la transformation :
 
@@ -155,7 +155,7 @@ Encore une fois on va faire appel à une classe que l'on appelera FizzBuzzTransf
 {{/java}}
 {{/example}}
 
-Pour l'implémentation, il suffit de reprendre le code de notre classe du début : 
+Pour l'implémentation, il suffit de reprendre le code de notre classe du début :
 
 {{example title="FizzBuzz : FizzBuzzTransformer"}}
 {{java}}
@@ -167,13 +167,13 @@ Pour l'implémentation, il suffit de reprendre le code de notre classe du début
 
 == On sait transformer un Range ==
 
-Pour ce dernier test, on va faire appel à la programmation fonctionnelle. Même si c'est un paradigmen dans lequel Java n'est pas forcément très à l'aise, il est possible d'utiliser certains de ces principes. 
+Pour ce dernier test, on va faire appel à la programmation fonctionnelle. Même si c'est un paradigmen dans lequel Java n'est pas forcément très à l'aise, il est possible d'utiliser certains de ces principes.
 
-Nous disposons d'un ensemble (Range) que nous devons transformer en un autre ensemble par le biai d'une fonction qui est ici représentée par la méthode transform de FizzBuzzTransformer. En programmation fonctionnelle, cette opération s'appelle un map et nous allons l'implémenter dans la classe Range. 
+Nous disposons d'un ensemble (Range) que nous devons transformer en un autre ensemble par le biai d'une fonction qui est ici représentée par la méthode transform de FizzBuzzTransformer. En programmation fonctionnelle, cette opération s'appelle un map et nous allons l'implémenter dans la classe Range.
 
 {{code}}
 public class Range {
-  
+
   ...
 
   public Iterator<String> map(Function<Integer, String> function) {
@@ -183,7 +183,7 @@ public class Range {
 {{/code}}
 
 
-Nous définissons ici le concept de fonction d'un entier vers une chaine de caractères. L'idée est de pouvoir utiliser cette construction sous la forme suivante : 
+Nous définissons ici le concept de fonction d'un entier vers une chaine de caractères. L'idée est de pouvoir utiliser cette construction sous la forme suivante :
 
 {{code}}
 Iterator<String> fizzBuzzIterator = new Range(199).map(new FizzBuzzTransformer());
@@ -201,10 +201,10 @@ Pour tester cette fonction map(), nous allons tout d'abord la tester avec une fo
 
 
 {{note}}
-La construction de la fonction double utilise ce qu'on appelle un classe anonyme : elle n'a pas de nom, c'est juste une classe appelée à l'endroit où elle est définit. 
+La construction de la fonction double utilise ce qu'on appelle un classe anonyme : elle n'a pas de nom, c'est juste une classe appelée à l'endroit où elle est définit.
 {{/note}}
 
-Il nous faut alors définir ce qu'est une fonction. Pour cela on va définir l'interface Function suivante : 
+Il nous faut alors définir ce qu'est une fonction. Pour cela on va définir l'interface Function suivante :
 
 {{example title="FizzBuzz : interface Function"}}
 {{java}}
@@ -213,7 +213,7 @@ Il nous faut alors définir ce qu'est une fonction. Pour cela on va définir l'i
 {{/java}}
 {{/example}}
 
-Ce n'est ni plus ni moins que la déclaration mathématique d'une fonction : un ensemble T1 entrée et T2 en sortie. 
+Ce n'est ni plus ni moins que la déclaration mathématique d'une fonction : un ensemble T1 entrée et T2 en sortie.
 
 
 Il nous reste à implémenter la méthode map() de la classe Range :
@@ -227,7 +227,7 @@ Il nous reste à implémenter la méthode map() de la classe Range :
 {{/example}}
 
 {{note}}
-L'intérêt d'une telle construction est que l'on a pas besoin de calculer toutes les valeurs de l'itérateur dès le début. On les construit au fur et à mesure que le programme appelant en a besoin. 
+L'intérêt d'une telle construction est que l'on a pas besoin de calculer toutes les valeurs de l'itérateur dès le début. On les construit au fur et à mesure que le programme appelant en a besoin.
 
 Dans notre cas, le calcul est très simple, mais imaginons que la fonction fasse appel à des calculs intenses et que l'algorithme appelant décide de s'arrêter à un moment donnée et n'aille pas //au bout// de l'itérateur. Dans ce cas, il ne faut faire les calculs qu'au fur et à mesure.
 {{/note}}
@@ -244,11 +244,11 @@ Nos test sont désormais vert. Nous allons pouvoir utiliser nos différentes cla
 {{/example}}
 
 
-Le programme s'exécute et nous donne exactement la même chose.... L'implémentation, à l'inverse, n'a rien à voir et possède la particularité d'être testée. Cette propriété nous permet de vérifier que le code fonctionne toujours lorsque l'on change le code pour par exemple le refactorer. 
+Le programme s'exécute et nous donne exactement la même chose.... L'implémentation, à l'inverse, n'a rien à voir et possède la particularité d'être testée. Cette propriété nous permet de vérifier que le code fonctionne toujours lorsque l'on change le code pour par exemple le refactorer.
 
-Dans notre cas, nous disposons d'un classe Range qui possède une méthode map(). On pourrait extraire cette particularité dans une classe abstraite Mappable qui contiendrait une implémentation par défaut pouvant être appelée pour n'importe quel itérateur et pas seulement des itérateurs d'entiers. 
+Dans notre cas, nous disposons d'un classe Range qui possède une méthode map(). On pourrait extraire cette particularité dans une classe abstraite Mappable qui contiendrait une implémentation par défaut pouvant être appelée pour n'importe quel itérateur et pas seulement des itérateurs d'entiers.
 
-La classe ##Range## n'implémentera plus directement ##Iterator<Integer>## mais héritera de ##Mappable<Integer>##. Voici ci dessous la classe Mappable : 
+La classe ##Range## n'implémentera plus directement ##Iterator<Integer>## mais héritera de ##Mappable<Integer>##. Voici ci dessous la classe Mappable :
 
 {{example title="FizzBuzz : classe Mappable"}}
 {{java}}
@@ -267,15 +267,15 @@ La classe Range devient alors :
 {{/example}}
 
 
-En réexécutant les tests, on peut constater que le programme fonctionne toujours. L'intérêt des test est ici flagrant : on peut modifier du code en étant sûr que les fonctionnalités sont toujours là. Lorsque l'on arrive sur une application inconnue et que l'on doit modifier du code, on le fait d'autant plus sereinement que la couverture de test est importante. 
+En réexécutant les tests, on peut constater que le programme fonctionne toujours. L'intérêt des test est ici flagrant : on peut modifier du code en étant sûr que les fonctionnalités sont toujours là. Lorsque l'on arrive sur une application inconnue et que l'on doit modifier du code, on le fait d'autant plus sereinement que la couverture de test est importante.
 
 
 
-= Comment livrer son code ? = 
+= Comment livrer son code ? =
 
-Nous avons réalisé notre programme et nous sommes maintenant sûrs que celui-ci fonctionne. Il nous faut maintenant le livrer. Le packaging par défaut en java est le fichier ##JAR##. Pour construire un fichier JAR à la main c'est un peu compliqué. 
+Nous avons réalisé notre programme et nous sommes maintenant sûrs que celui-ci fonctionne. Il nous faut maintenant le livrer. Le packaging par défaut en java est le fichier ##JAR##. Pour construire un fichier JAR à la main c'est un peu compliqué.
 
-Pour automatiser toutes ces phases de build, plusieurs outils sont apparus comme standard, bien que ne faisant pas partie du JDK par défaut. 
+Pour automatiser toutes ces phases de build, plusieurs outils sont apparus comme standard, bien que ne faisant pas partie du JDK par défaut.
 
 == Gestionnaire de source
 
@@ -289,8 +289,28 @@ TODO
 TODO
 
 
-== Sonar == 
+== Sonar ==
 
 TODO
+
+= Comment rendre son code modulaire =
+
+== Problématique ==
+
+Le code actuel de FizzBuzz est assez monolithique. La classe principale est responsable de la configuration du programme ainsi que de l'implémentation du problème à utiliser : on dit qu'elle en a le contrôle.
+
+{{example title="FizzBuzz : la méthode main a le contrôle des implémentations"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.GenericFizzBuzz2#main(java.lang.String[])}
+{@include org.isen.fizzbuzz.GenericFizzBuzz2#main(java.lang.String[])}
+{{/java}}
+{{/example}}
+
+
+Du point de vue de la modularité ce n'est pas bon : la classe principale est liée à l'implémentation concrète de ##FizzBuzzTransormer##. Afin de pallier à ce problème on va utiliser un pattern popularisé par Martin Fowler puis par le framework Spring qui s'appelle l'inversion de contrôle. Ce n'est plus la classe qui va choisir son implémentation, mais elle va lui être injectée.
+
+== Utiliser des Factories ==
+
+== L'injection de dépendance ==
 
 
