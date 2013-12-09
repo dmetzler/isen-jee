@@ -11,12 +11,20 @@ import javax.persistence.NamedQuery;
 
 import org.joda.time.DateTime;
 
-@Entity(name="Post")
-@NamedQueries({ @NamedQuery(name = BlogEntryImpl.ALL_ENTRIES,
-query = "FROM Post ORDER BY created DESC") })
+@Entity(name = "Post")
+@NamedQueries({ @NamedQuery(name = BlogEntryImpl.ALL_ENTRIES, //
+query = "FROM Post ORDER BY created DESC"),//
+        @NamedQuery(name = BlogEntryImpl.ENTRIES_BY_TITLE,//
+        query = "FROM Post WHERE title = :title"),//
+        @NamedQuery(name = BlogEntryImpl.ENTRIES_BY_PERIOD,//
+        query = "FROM Post WHERE created >= :from and created <= :to") })
 public class BlogEntryImpl implements BlogEntry {
 
     public static final String ALL_ENTRIES = "ALL_ENTRIES";
+
+    public static final String ENTRIES_BY_TITLE = "ENTRIES_BY_TITLE";
+
+    public static final String ENTRIES_BY_PERIOD = "ENTRIES_BY_PERIOD";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

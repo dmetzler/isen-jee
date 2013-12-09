@@ -82,7 +82,7 @@ public class BlogDAOTest {
     @Test
     public void shouldBeAbleToRetrieveByTitle() throws Exception {
         List<BlogEntry> entries = dao.getBlogEntriesByTitle("un");
-        assertThat(entries.size(), is(1));
+        assertThat(entries).hasSize(1);
 
         BlogEntry entry = entries.get(0);
         assertThat(entry.getTitle()).isEqualTo("un");
