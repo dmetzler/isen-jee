@@ -1,16 +1,32 @@
 package org.dmetzler.isen.jpa;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 
+import org.dmetzler.isen.jpa.guice.GuiceRunner;
+import org.dmetzler.isen.jpa.guice.H2DBModule;
+import org.dmetzler.isen.jpa.guice.JpaDaoModule;
+import org.dmetzler.isen.jpa.guice.Modules;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.google.inject.Inject;
 
+@RunWith(GuiceRunner.class)
+@Modules({JpaDaoModule.class, H2DBModule.class})
 public class BlogDAOTest {
 
     @Inject
     BlogDAO dao;
+
+
+    @Test
+    public void daoIsInjected() throws Exception {
+        assertNotNull(dao);
+    }
 
     @Test
     public void iCanCreateAndRetrieveABlogEntry() throws Exception {
@@ -36,8 +52,8 @@ public class BlogDAOTest {
         assertThat(entry.getTitle()).isEqualTo("Mon billet de blog");
         assertThat(entry.getAuthor()).isEqualTo("Damien Metzler");
         assertThat(entry.getContent()).isEqualTo("Le contenu de mon billet");
-        assertThat(entry.getDate().toString("YYYYmmdd")).isEqualTo(
-                new DateTime().toString("YYYYmmdd"));
+        assertThat(entry.getDate().toString("YYYYMMdd")).isEqualTo(
+                new DateTime().toString("YYYYMMdd"));
     }
 
     @Test
