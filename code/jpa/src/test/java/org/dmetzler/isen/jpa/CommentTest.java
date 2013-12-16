@@ -1,15 +1,23 @@
 package org.dmetzler.isen.jpa;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.dmetzler.isen.jpa.guice.GuiceRunner;
+import org.dmetzler.isen.jpa.guice.H2DBModule;
+import org.dmetzler.isen.jpa.guice.JpaDaoModule;
+import org.dmetzler.isen.jpa.guice.Modules;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.google.inject.Inject;
 
+@RunWith(GuiceRunner.class)
+@Modules({JpaDaoModule.class, H2DBModule.class})
 public class CommentTest {
 
     @Inject

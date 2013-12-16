@@ -1,6 +1,8 @@
 package org.dmetzler.isen.jpa;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +10,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.joda.time.DateTime;
 
 @Entity(name = "Post")
@@ -30,10 +35,18 @@ public class BlogEntryImpl implements BlogEntry {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     Long id;
 
+    @OneToMany
+    @Cascade(CascadeType.ALL)
+    private List<CommentImpl> comments = new ArrayList<>();
+
     private String author;
     private String content;
     private String title;
     private Date created;
+
+    public BlogEntryImpl() {
+
+    }
 
     public BlogEntryImpl(String title) {
         this.title = title;
@@ -72,4 +85,26 @@ public class BlogEntryImpl implements BlogEntry {
         created = date.toDate();
 
     }
+
+    @Override
+    public Comment addComment(Comment comment) {
+        CommentImpl jpaComment = new CommentImpl(this, comment.getAuthor(),
+                comment.getContent());
+        comments.add(jpaComment);
+        return jpaComment;
+
+
+    }
+
+    @Override
+    public List<? extends Comment> getComments() {
+        return comments;
+    }
+
+    @Override
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+
+    }
+
 }
