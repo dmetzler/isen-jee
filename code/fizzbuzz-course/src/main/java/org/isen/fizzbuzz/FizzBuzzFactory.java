@@ -7,16 +7,23 @@ import java.util.Properties;
 public class FizzBuzzFactory {
 
     @SuppressWarnings("unchecked")
-    public Function<Integer, String> getTransformer() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Properties props = new Properties();
+    public Function<Integer, String> getTransformer() throws IOException,
+            ClassNotFoundException, InstantiationException,
+            IllegalAccessException {
+        Properties props = getFizzBuzzProperties();
 
-        URL url = getClass().getClassLoader().getResource("fizzbuzz.properties");
-        props.load(url.openStream());
-
-        Class<?> klass = Class.forName(props.getProperty("fizzbuzz.transformer.class"));
+        Class<?> klass = Class.forName(props
+                .getProperty("fizzbuzz.transformer.class"));
         return (Function<Integer, String>) klass.newInstance();
 
+    }
 
+    private Properties getFizzBuzzProperties() throws IOException {
+        Properties props = new Properties();
+        URL url = getClass().getClassLoader()
+                .getResource("fizzbuzz.properties");
+        props.load(url.openStream());
+        return props;
     }
 
 }

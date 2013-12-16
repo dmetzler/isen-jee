@@ -13,10 +13,10 @@ import com.google.inject.name.Names;
 public class FizzBuzzModule extends AbstractModule {
 
     @SuppressWarnings("unchecked")
-    @Provides
-    @Singleton
+    @Provides //<> Cette annotation spécifie que l'on peut fournir des ##Function<String,String>##
+    @Singleton  // <> On peut spécifier que la classe injectée sera un singleton
     public Function<Integer, String> getTransformer(
-            @Named("fizzbuzz.transformer.class") String className) {
+            @Named("fizzbuzz.transformer.class") String className) { // <> Au sein même du provider on peut demander l'injection de propriétés
         try {
             Class<?> klass = Class.forName(className);
             return (Function<Integer, String>) klass.newInstance();
@@ -30,6 +30,9 @@ public class FizzBuzzModule extends AbstractModule {
     @Override
     protected void configure() {
         try {
+            //Ici on bind les propriétés à leur nom. On va donc
+            //pouvoir injecter les propriétés du fichier fizzbuzz.properties
+        	//directement dans nos classes.
             Names.bindProperties(binder(), getProperties());
         } catch (IOException e) {
             System.out.println("Unable to bind properties");

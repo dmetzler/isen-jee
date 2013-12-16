@@ -269,30 +269,6 @@ La classe Range devient alors :
 
 En réexécutant les tests, on peut constater que le programme fonctionne toujours. L'intérêt des test est ici flagrant : on peut modifier du code en étant sûr que les fonctionnalités sont toujours là. Lorsque l'on arrive sur une application inconnue et que l'on doit modifier du code, on le fait d'autant plus sereinement que la couverture de test est importante.
 
-
-
-= Comment livrer son code ? =
-
-Nous avons réalisé notre programme et nous sommes maintenant sûrs que celui-ci fonctionne. Il nous faut maintenant le livrer. Le packaging par défaut en java est le fichier ##JAR##. Pour construire un fichier JAR à la main c'est un peu compliqué.
-
-Pour automatiser toutes ces phases de build, plusieurs outils sont apparus comme standard, bien que ne faisant pas partie du JDK par défaut.
-
-== Gestionnaire de source
-
-== Maven ==
-
-TODO
-
-
-== Jenkins ==
-
-TODO
-
-
-== Sonar ==
-
-TODO
-
 = Comment rendre son code modulaire =
 
 == Problématique ==
@@ -311,6 +287,154 @@ Du point de vue de la modularité ce n'est pas bon : la classe principale est li
 
 == Utiliser des Factories ==
 
+Le pattern //factory// va déléguer l'instanciation d'un classe à un autre classe : on déplace les responsabilités. La factory va nous fournir une implémentation de la class ##FizzBuzzTransformer## et va se baser sur un fichier de propriété pour trouver la classe à utiliser.
+
+{{code}}
+fizzbuzz.transformer.class=org.isen.fizzbuzz.FizzBuzzTransformer
+fizzbuzz.range=199
+{{/code}}
+
+Pour l'exemple, on va stocker le fichier de propriétés dans le classpath  afin de pouvoir y accéder plus facilement.
+
+{{example title="FizzBuzz : utilisation d'une factory"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.GenericFizzBuzz3#main(java.lang.String[])}
+{@include org.isen.fizzbuzz.GenericFizzBuzz3#main(java.lang.String[])}
+{{/java}}
+
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzzFactory}
+{@include org.isen.fizzbuzz.FizzBuzzFactory}
+{{/java}}
+
+{{/example}}
+
+
 == L'injection de dépendance ==
 
+Une autre manière d'inverser le contrôle est d'utiliser un méthode qui s'appelle l'injection de dépendances. Lorsque l'on va avoir besoin d'une classe, on va déléguer à un système la création de cette classe.
+
+On va utiliser des annotations pour spécifier les dépendances et le système externe va nous les injecter. Pour l'exemple, on va utiliser un framework d'injection de dépendances qui s'appelle Guice.
+
+{{example title="FizzBuzz : utilisation de l'injection de dépendance"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzz}
+{@include org.isen.fizzbuzz.FizzBuzz}
+{{/java}}
+{{/example}}
+
+L'injection ne fonctionnant que sur des instances, on a ajouté une méthode ##run()## qui est appelé par la méthode static ##main()##.
+
+Pour que Guice sache quelle classe injecter sur nos points d'injection, il faut le configurer. Cela se fait par le biai de modules qui lient des interfaces à une classe.
+
+
+{{example title="FizzBuzz : module de configuration Guice"}}
+{{java}}
+{@javadoc org.isen.fizzbuzz.FizzBuzzModule}
+{@include org.isen.fizzbuzz.FizzBuzzModule}
+{{/java}}
+{{/example}}
+
+Au niveau de la configuration, on voit que l'on peut utiliser différentes stratégies. La méthode ##configure()## est appelée par Guice dans laquelle on peut définir des bindings (ici les propriétés). On peut aussi utiliser l'annotation ##@Provides## sur une méthode qui sera appelée au moment où l'on a besoin d'une propriété du même type que la valeur retour.
+
+On remarquera aussi que dans la méthode ##getTransformer()## on utilise de l'injection de dépendance au niveau des paramètres de la méthode. Effectivement, un méthode provider, tout comme le constructeur d'une classe à injecter, ne peut pas prendre de paramètres, sauf si ceux-ci sont injectables.
+
+L'avantage d'utiliser un framework comme Guice est qu'il permet d'isoler la configuration des dépendances entre les différentes classes. Cela se fait au sein de modules qui sont des classes Java et qui sont testables. La //plomberie// de notre application devient donc elle même l'objet de tests.
+
+Lors de la réalisation d'applications nécessitant des systèmes externes, on voit que l'on pourrait utiliser une configuration de test qui bouchonnerait (stub en anglais) les systèmes externes. Pour démarrer la configuration de test, il suffit de bien configurer l'injecteur pour qu'il pointe sur les implémentation en mode bouchon.
+
+
+
+= Comment livrer son code ? =
+
+Nous avons réalisé notre programme et nous sommes maintenant sûrs que celui-ci fonctionne. Il nous faut maintenant le livrer. Le packaging par défaut en java est le fichier ##JAR##. Pour construire un fichier JAR à la main c'est un peu compliqué.
+
+Pour automatiser toutes ces phases de build, plusieurs outils sont apparus comme standard, bien que ne faisant pas partie du JDK par défaut.
+
+== Gestionnaire de source
+
+== Maven ==
+
+=== Problématique ==
+
+Lorsque l'on dispose d'un code source en Java, on peut le compiler à l'aide de la commande ##javac##. Si cette approche est acceptable lorsque l'on dispose d'un seul fichier java ne dépendant d'aucune librairie tierce, cela devient vite invivable dans une application JEE où l'on a besoins de plusieurs centaines de fichiers sources et que l'on dépend de plusieurs dizaine de librairies.
+
+Pour pallier à ce problème, on dispose de l'outil ant qui permet de définir des suites de commandes à exécuter pour compiler le programme. Cependant cela ne gère pas le problème des dépendances qu'il faut gérer à la main. Si une librairie que l'on utilise dans le programme a besoin d'une autre librairie, il n'y a pas moyen d'intégrer cette dépendance de manière automatique.
+
+Maven est un outil qui permet d'adresser entre autres tous ces problèmes. Il propose un modèle de projet Java qu'il peut compiler et une gestion des dépendances transitives intégrées. De plus, l'outil possède tout un ensemble de plugins permettant d'adresser des problèmatiques de type packaging et assemblage (jar, war ou ear). Enfin l'un des plugins permet de lancer les tests du projet. Dans la suite du chapitre nous verrons comment mettre en oeuvre Maven et exploiter ses différentes possibilités.
+
+=== Project Object Model ===
+
+La base d'un projet Maven est un fichier appelé pom.xml qui veut dire Project Object Model, c'est un fichier décrivant le projet : son nom, sa description, la manière de le compiler ainsi que ses dépendances. Chaque projet appartient a un groupe pour regrouper les projets à la manière des packages java. Le fichier ci-dessous présente le fichier pom.xml d'un projet Maven minimal déclarant une dépendance sur la librairie jUnit.
+
+{{example title="Maven :: pom example"}}
+{{xml}}
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+
+  <groupId>org.dmetzler.isen.courses</groupId>
+  <artifactId>maven-sample</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Maven :: exemple de pom</name>
+  <description>Projet d'exemple d'utilisation de Maven</description>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.2</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>{{/xml}}
+{{/example}}
+
+
+Maven décrit aussi une arborescence de répertoires pour contenir les fichiers du projet :
+
+{{example title="Maven : Arborescence d'un projet"}}
+{{code}}
+ maven-sample
+     `-- src
+      |-- main
+      |   |-- java 1
+      |   |   `-- org
+      |   |       `-- dmetzler
+      |   |           `-- courses
+      |   |               `-- sample.java
+      |   `-- resources
+      |
+      |-- test 2
+      |   |-- java
+      |   |   `-- dmetzler
+      |   |       `-- nuxeo
+      |   |           `-- courses
+      |   |               `-- sampleTest.java
+      |   `-- resources
+      |-- target
+      `-- pom.xml
+{{/code}}
+{{/example}}
+
+Pour compiler le source et exécuter les tests il suffit d'exécuter la commande suivante au niveau du fichier ##pom.xml## :
+
+{code}
+❯ mvn clean install
+{/code}
+
+Les résultats de l'exécution de la compilation sont copiés dans le répertoire target ainsi que les résultats des tests. Ce répertoire est créé à l'exécution de la commande. Il peut être supprimé sans aucun risque.
+
+
+== Jenkins ==
+
+TODO
+
+
+== Sonar ==
+
+TODO
 

@@ -2,14 +2,11 @@ package org.isen.fizzbuzz;
 
 import java.util.Iterator;
 
-public class GenericFizzBuzz2 {
+public class GenericFizzBuzz3 {
 
-    public static void main(String[] args) throws Exception {
-
-        FizzBuzzFactory fb = new FizzBuzzFactory();
-
+    public static void main(String[] args) {
         Iterator<String> fizzBuzzIterator = new MappableRange(199)
-                .map(fb.getTransformer());
+                .map(new FizzBuzzTransformer());
         while(fizzBuzzIterator.hasNext()) {
             System.out.println(fizzBuzzIterator.next());
         }
