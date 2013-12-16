@@ -1,0 +1,4 @@
+<persistence>
+  <persistence-unit name="db-manager">
+  </persistence-unit>
+</persistence>
