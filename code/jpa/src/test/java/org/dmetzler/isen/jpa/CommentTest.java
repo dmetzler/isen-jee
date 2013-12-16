@@ -1,13 +1,12 @@
 package org.dmetzler.isen.jpa;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
+import static org.assertj.core.api.Assertions.*;
 import java.util.List;
+
+import javax.persistence.EntityManager;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.w3c.dom.Comment;
 
 import com.google.inject.Inject;
 
@@ -29,9 +28,9 @@ public class CommentTest {
 
         entry = dao.getBlogEntry(entry.getId());
         List<? extends Comment> comments = entry.getComments();
-        assertThat(comments.size(), is(1));
+        assertThat(comments).hasSize(1);
         comment = comments.get(0);
-        assertThat(comment.getBlog()).is(entry);
+        assertThat(comment.getBlog()).isEqualTo(entry);
         assertThat(comment.getDate().toString("YYYYmmdd")).isEqualTo(new DateTime().toString("YYYYmmdd"));
         assertThat(comment.getAuthor()).isEqualTo("author");
         assertThat(comment.getContent()).isEqualTo("un commentaire");
