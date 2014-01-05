@@ -19,6 +19,11 @@
   <modules>
     <module>fizzbuzz</module>
     <module>fizzbuzz-course</module>
+    <module>guava</module>
+    <module>jpa</module>
+    <module>hello-servlet</module>
+
+
   </modules>
 
 </project>
