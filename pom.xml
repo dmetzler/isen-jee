@@ -18,6 +18,7 @@
   <properties>
     <wikbook.source>${pom.basedir}/src/main/wikbook</wikbook.source>
     <wikbook.target>${project.build.directory}/wikbook</wikbook.target>
+    <jetty.version>9.1.0.v20131115</jetty.version>
   </properties>
 
 
@@ -281,6 +282,35 @@
         <type>test-jar</type>
         <classifier>sources</classifier>
       </dependency>
+
+
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>hello-servlet-course</artifactId>
+        <version>${project.version}</version>
+        <classifier>sources</classifier>
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>hello-servlet-course</artifactId>
+        <version>${project.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>hello-servlet-course</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen</groupId>
+        <artifactId>hello-servlet-course</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <classifier>sources</classifier>
+      </dependency>
+
+
       <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
@@ -347,6 +377,51 @@
       <version>1.3.148</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mortbay.jetty</groupId>
+      <artifactId>jsp-2.1-glassfish</artifactId>
+      <version>2.1.v20100127</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
 
     </dependencies>
   </dependencyManagement>

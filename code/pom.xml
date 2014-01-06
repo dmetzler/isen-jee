@@ -22,6 +22,7 @@
     <module>guava</module>
     <module>jpa</module>
     <module>hello-servlet</module>
+    <module>hello-servlet-course</module>
 
 
   </modules>

@@ -4,7 +4,7 @@
 
 
 <%
-  String name = GuessNumberServlet.getNameFromRequest(request);
+  String name = HelloServlet.getNameFromRequest(request);
 %>
 
 

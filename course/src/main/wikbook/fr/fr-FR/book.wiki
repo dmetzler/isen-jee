@@ -6,4 +6,25 @@ Avant de commencer à parler de *JEE* à proprement dit, nous allons nous intér
 
 {{include document="1-fizzbuzz.wiki" /}}
 
+= Persistence des données : JPA =
+
+{{include document="2-jpa.wiki" /}}
+
+= Applications web : Servlets et JSP =
+
+L'une des promesses de *JEE* est de permettre de développer des applications web. La première brique permettant d'ouvrir des applications sur le web s'appelle une *servlet*. Dans cette partie nous allons voir comment mettre en oeuvre cette technologie et faire nos premiers pas dans le monde web à la sauce Java.
+
+{{include document="3-servlet.wiki" /}}
+
+= Le modèle stateful : JSF =
+
+{{include document="4-jsf.wiki" /}}
+
+= Services web : JAX-RS =
+
+{{include document="5-jaxrs.wiki" /}}
+
+= Comment scaler : applications stateless =
+
+{{include document="6-stateless.wiki" /}}
 

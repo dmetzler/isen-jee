@@ -30,19 +30,18 @@ public class HelloServlet extends HttpServlet {
                 + "</body></html>";//
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    protected void doGet0(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         PrintWriter out = resp.getWriter();
         out.print("Hello World");
     }
 
 
-    protected void doGet2(HttpServletRequest req, HttpServletResponse resp)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         PrintWriter out = resp.getWriter();
         String name = getNameFromRequest(req);
-
         out.print(getHtml(name));
     }
 

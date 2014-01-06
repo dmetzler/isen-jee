@@ -1,0 +1,390 @@
+= Serveur web, serveur d'application, conteneur .... =
+
+Quand on parle du web en java on entend différents termes qui peuvent être confondus. Cette première partie nous permettra de bien différencier ces différents termes et de voir ce qu'ils ont en commun.
+
+== Serveur web ==
+
+C'est un serveur qui sert des pages web. On parle ici de pages HTML statiques dont le contenu est présent sur un disque dur. On peut citer comme serveur web :
+
+ * Apache Web Server
+ * Nginx
+ * lightHttpd
+ * Microsoft IIS  (hors .NET)
+
+Ces serveurs peuvent contenir certaines extensions leur permettant de générer des pages dynamiquement. Lorsqu'une requête arrive et est identifié comme dynamique (souvent via des patterns d'URL ou des extension de fichier), alors le serveur web délègue la génération de la page à un programme exécutable. C'est le cas des scripts CGI qui peuvent être programmés dans n'importe quel langage compréhensible par le serveur (C, Perl, Python...).
+
+Dans d'autres cas, cela peut être un script exécuté par un interpréteur qui génère la page : le très populaire PHP est basé sur ce modèle. Ce qu'il y a de commun à ces différents modèles, est que le cycle de vie du programme épouse le cycle de vie de la requête web. Le programme démarre à l'arrivée de la requête et rend la main au serveur web une fois son exécution terminée. On utilise un espaces appelé *session* pour stocker des informations entre deux requêtes : le programme est chargé de stocker et récupérer ces informations par ses propres moyens.
+
+Il n'existe par ailleurs par de norme particulière pour gérer le cycle de vie d'une application et c'est généralement la tâche des frameworks au dessus de ces modèles de gérer le modèle d'application.
+
+== Le monde java ==
+
+C'est à ce problème de modèle d'application que le monde Java essaye de répondre. On va décrire un modèle de déploiement d'application, ainsi que des serveurs permettant d'exécuter ces applications. Toutes celles-ci n'ayant pas forcément la même complexité, on va définir différents niveaux de fonctionnalités et donc différents noms pour les serveurs d'application.
+
+=== Conteneurs de servlet ===
+
+Le conteneur de servlet possède le plus petit niveau de fonctionnalités. Son rôle est de savoir déployer des ##Servlets## : ce sont des classes Java qui doivent suivre une API leur peremettant de répondre à des requêtes WEB. Le déploiement de servlets se fait par le biai d'une archive (Web ARchive : war) muni d'un descripteur de déploiement (##web.xml##). Pour exemple on peut citer :
+
+ * Apache Tomcat
+ * Jetty
+
+=== Serveur JEE Web Profile ===
+
+Un serveur d'application JEE s'exécute au dessus d'un conteneur de servlet : il en hérite donc de toutes les fonctionnalités. Aux servlets, il ajoute l'intégration et la gestion de différentes technologies JEE comme JPA, CDI, EJB, JMS etc... Le **Web Profile** est un profil léger qui suffit pour la grande majorité des applications dès lors que l'on ne veut faire que du web (pas d'objets distribués) et est implémenté par exemples par les serveurs suivants :
+
+ * Apache TomEE : c'est un tomcat auquel on a ajouté les librairies manquantes pour le web profile
+ * JBoss WidlFly
+
+Il permettent de déployer des applications par le biai d'une archive (Enterprise ARchive : ear) et d'autres descripteurs de déploiement (##application.xml##).
+
+=== Serveur JEE Full profile ===
+
+C'est la version complète de JEE, qui contient toutes les fonctionnalités, mais qui du coup est aussi plus lourde à utiliser.
+
+
+Dans la suite de cette partie, nous allons utiliser un conteneur de servlet. Certain conteneurs sont tellement légers, comme Jetty, qu'ils peuvent aisément s'embarquer dans des tests.
+
+
+= Modèle de déploiement d'un application web en Java =
+
+== Servir un simple fichier ==
+
+JEE propose un modèle de déploiement qu'il faut respecter pour déployer une application. De même que les fichier JAR (Java ARchive) permette de packages des classes ensembles, il existe le format WAR (Web ARchive) permettant de packager l'ensemble des ressources web d'une application.
+
+Dans un premier temps, nous allons essayer de déployer une simple page HTML dans un serveur d'application et de vérifier son contenu dans un test. Pour cela, nous allon utiliser une serveur d'application léger qui s'appelle Jetty et démarrer ce serveur au sein même d'un test. Cela se fait relativement simplement et le code correspondant se trouve dans le fichier ##JettyHarness.java##. Démarrer un serveur embarqué permet de bien décrire les différents éléments nécessaires au déploiement d'une application :
+
+{{example title="Servlet : démarrer Jetty en mode embarqué"}}
+{{java}}
+@BeforeClass
+    public static void startServer() throws Exception {
+        server = new Server(port);  // <> On créé un serveur
+        server.setStopAtShutdown(true);
+
+        WebAppContext context = new WebAppContext(); //<> On crée un nouvelle application que l'on va configurer
+
+        String wardir = "src/main/webapp";
+        context.setResourceBase(wardir); // <> On spécifie le répertoire qui correspond au WAR
+        context.setDescriptor(wardir + "WEB-INF/web.xml"); //<> On spécifie le descripteur de déploiement
+
+        context.setContextPath("/" + CONTEXT_PATH); //<> On spécifie à quel chemin va se trouver notre application
+
+        context.setParentLoaderPriority(true);
+
+        context.addServlet(new ServletHolder(new HelloServlet()),
+                HELLO_SERVLET_PATH); // <> On ajoute une servlet au déploiement
+
+        server.setHandler(context);
+        server.start();  // <> On démarre le serveur
+
+    }
+{{/java}}
+{{/example}}
+
+
+On peut ainsi faire tourner le test suivant pour vérifier que l'on arrive à démarrer notre serveur.
+
+{{example title="Servlet : test de déploiement"}}
+{{java}}
+package org.isen.hello;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class DeploymentTest extends JettyHarness {
+
+    @Test
+    public void itCanBrowseIndex() throws Exception {
+        String index = get(getBaseUri()); // <> Récupère le contenu d'une page à une adresse
+        assertTrue(index.contains("Hello")); // <> Vérifie le contenu de la page
+    }
+}
+
+{{/java}}
+{{/example}}
+
+
+Nous avons utilisé le répertoire ##src/main/webapp## comme base de notre archive web. Ce n'est pas un détail, c'est parce que nous utilisons Maven et que le mode de packaging WAR suppose que les fichiers se trouvent à cet endroit. Quand on demande à Maven de packager le projet, il utilise par défaut ce répertoire pour trouver les ressources à inclure dans le war final, il y ajoutera aussi les classes compilées du projet.
+
+Le fichier ##web.xml## présent dans ##src/main/webapp/WEB-INF/## est le descripteur de déploiement. C'est lui qui décrit les différentes éléments de notre application. Ici, il est relativement simple et ne contient qu'une référence sur le fichier d'accueil de l'application.
+
+
+{{example title="Servlet : test de déploiement"}}
+{{xml}}
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+          http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+  metadata-complete="false"
+  version="3.0">
+  <display-name>Hello Application</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+</web-app>
+{{/xml}}
+{{/example}}
+
+{{notice}}
+Nous avons spécifié dans le fichier pom.xml que le ##finalName## du packaging était ##hello##. Cela veut dire que notre war sera disponible à l'adresse http://localhost:8080/hello. Cette partie de l'URL est appelé le context path. Par défaut, c'est le nom du fichier war, mais la plupart des serveurs d'application permettent de redéfinir ce nom dans leur console d'administration. Cependant, dans la majorité des cas, on essaye de construire un fichier war dont le nom est le context path désiré.
+{{/notice}}
+
+
+
+== Servir une page dynamique avec une servlet ==
+
+Nous souhaitons ici implémenter une page web dynamique, c'est à dire que le contenu de la page web va être généré par du code Java. Pour cela, nous allons utiliser une servlet : c' est une classe Java qui implémente l'interface ##Servlet##. Il en existe une implémentation plus spécialisée pour le protocole Http : ##HttpServlet##. C'est de cette dernière implémentation dont nous allons hériter pour implémenter notre première servlet. La classe ##HttpServlet## possède différentes méthodes permettant de répondres au différentes méthodes du protocole HTTP :
+
+ * doGet(HttpServletRequest, HttpServletResponse) pour la méthode GET
+ * doPost(HttpServletRequest, HttpServletResponse) pour la méthode POST
+ * doPut(HttpServletRequest, HttpServletResponse) pour la méthode PUT
+ * doDelete(HttpServletRequest, HttpServletResponse) pour la méthode DELETE
+ * etc... (pour HEAD, OPTIONS...)
+
+
+Dans notre exemple, nous n'avons qu'à implémenter la méthode doGet, cela donne :
+
+{{example title="Servlet : méthode doGet"}}
+{{java}}
+package org.isen.hello;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+
+@WebServlet("/hello")   // <> Cette annotation permet de spécifier le chemin à laquelle cette servlet sera accédée (Servlet 3.0)
+public class HelloServlet extends HttpServlet {
+
+    private String getHtml() {
+
+        return "<html>"
+                + "<body>Servlet version"
+                + "<h1>Hello World!</h1>"
+                + "</body></html>";
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        PrintWriter out = resp.getWriter();
+        out.print(getHtml());
+    }
+}
+
+{{/java}}
+{{/example}}
+
+
+Afin que la servlet réponde à une adresse donnée, on l'a annotée avec l'annotation ##@WebServlet##. Ceci est possible depuis JEE6 et la version 3.0 de la spécification Servlet. Auparavant, il fallait décrire le déploiement dans le fichier ##web.xml## comme ceci :
+
+
+{example title="Servlet : web.xml avec descripteur de servlet"}}
+{{xml}}
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+          http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+  metadata-complete="false"
+  version="3.0">
+  <display-name>Hello Application</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+
+  <servlet>
+    <servlet-name>hello</servlet-name>
+    <servlet-class>org.isen.hello.HelloServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>hello</servlet-name>
+    <url-pattern>/hello</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+{{/xml}}
+{{/example}}
+
+
+{{notice}}
+L'une des grandes avancées de JEE6 est le fait de quasiment pouvoir s'abstraire du descripteur de déploiement web en introduisant l'usage des annotations au niveau des classes. Effectivement, au fur et à mesure que l'application grandissait, le fichier ##web.xml## avait tendance à grossir de manière importante et donc à devenir de moins en moins maintenable.
+{{/notice}}
+
+Notre exemple ici est un peu simpliste, et nous aimerions pouvoir présenter un formulaire à l'utilisateur pour qu'il puisse rentrer son nom. Le formulaire va utiliser une requête HTTP de type ##GET## en utilisant des paramètres de requête. On décide que l'adresse http://localhost:8080/hello/hello?name=isen devra renvoyer "Hello isen!".
+
+Le test correspondant est le suivant :
+
+{{example title="Servlet : test d'un paramètre de requête"}}
+{{java}}
+    @Test
+    public void itCanParameterizeTheMessage() throws Exception {
+        String result = get(getBaseUri() + "/hello?name=John");
+        assertTrue(StringUtils.isNotEmpty(result));
+        assertTrue(result.contains("John"));
+    }
+{{/java}}
+{{/example}}
+
+
+Pour faire passer ce test, il nous faut accéder aux paramètre de la requête. C'est à ça que va nous servir le paramètre ##HttpServletRequest## passé à la méthode ##doGet##. Cet objet contient tous les renseignements dont nous avons besoin pour connaitre la requête et plus particulièrement une méthode ##getParameter(java.lang.String)##. Cela donne :
+
+{{example title="Servlet : utilisation d'un paramètre de requête"}}
+{{java}}
+@WebServlet("/hello")   // <> Cette annotation permet de spécifier le chemin à laquelle cette servlet sera accédée (Servlet 3.0)
+public class HelloServlet extends HttpServlet {
+
+  private String getHtml(String name) {
+
+    return "<html>"//
+                + "<body>Servlet version" //
+                + "<h1>Hello " + name + "</h1>"//
+                + "<form method='GET'>"//  <> On ajoute un formulaire pour pouvoir entrer le nom
+                + "  <input name='name'/><input type='submit'/>"//
+                + "</form>"//
+                + "</body></html>";//
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+          throws ServletException, IOException {
+    PrintWriter out = resp.getWriter();
+    out.print(getHtml(req.getParameter("name")));
+  }
+
+}
+{{/java}}
+{{/example}}
+
+
+
+Enfin, nous voudrions que notre nom soit sauvegardé pour la requête suivante, et ce même si l'on n'a pas spécifié de nom. La session web va ici nous venir en aide : elle est créée automatiquement par le serveur d'application et on peut y stocker des objets qui survivront à la requête et pourront être utilisés dans les appels suivants. Le test est le suivant :
+
+{{example title="Servlet : test d'un paramètre de requête"}}
+{{java}}
+    @Test
+    public void itCanRememberTheNameBetweenTwoCalls() throws Exception {
+        String result = get(getBaseUri() + "/hello);
+        assertTrue(result.contains("World"));
+
+        result = get(getBaseUri() + "/hello?name=John");
+        assertTrue(result.contains("John"));
+
+        result = get(getBaseUri() + "/hello);
+        assertTrue(result.contains("John"));
+
+    }
+{{/java}}
+{{/example}}
+
+et notre servlet évolue de la manière suivante :
+
+
+{{example title="Servlet : Utilisation de la session web"}}
+{{java}}
+
+@WebServlet("/hello")
+public class HelloServlet extends HttpServlet {
+
+        private String getHtml(String name) {
+
+        return "<html>"//
+                + "<body>Servlet version" //
+                + "<h1>Hello " + name + "</h1>"//
+                + "<form method='GET'>"//
+                + "  <input name='name'/><input type='submit'/>"//
+                + "</form>"//
+                + "</body></html>";//
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        PrintWriter out = resp.getWriter();
+        String name = getNameFromRequest(req);
+
+        out.print(getHtml(name));
+    }
+
+    public static String getNameFromRequest(HttpServletRequest req) {
+        String name = req.getParameter("name");
+        if (StringUtils.isNotEmpty(name)) {
+            req.getSession().setAttribute("name", name);
+        } else {
+            name = (String) req.getSession().getAttribute("name");
+            name = StringUtils.isEmpty(name) ? "World" : name;
+        }
+
+        return name;
+    }
+}
+{{/java}}
+{{/example}}
+
+
+
+== Service une page web dynamique avec des JSP ==
+
+Comme on a pu le voir dans la partie précédente, on peut générer du code HTML à l'aide de classes java. Cela peut cependant vite devenir laborieux quand le code de la page html va grossir. D'autre part, cela a tendance à mélanger la partie présentation de la partie logique. JEE inclue une autre technologie qui s'appelle JSP (Java Server Page) qui propose une solution à ce problème. Une page JSP est un fichier que l'on va déposer dans notre war et qui va être compilé en servlet à la volée. Ce fichier permete de rédiger facilement du HTML sans se soucier de la syntaxe Java.
+
+
+{{example title="JSP : première exemple (hello.jsp)"}}
+{{code language="jsp"}}
+<html>
+<head>
+  <title>Hello JSP</title>
+</head>
+<body>
+<%
+  String paramName = request.getParameter("name");
+  String name = paramName == null ? "World" : paramName;
+%>
+
+
+<h1>Hello <%= name %></h1>
+
+<form method="get">
+<input name="name"/><input type="submit"/>
+</form>
+</body>
+</html>
+{{/code}}
+{{/example}}
+
+
+On remarque ici deux choses :
+
+ * L'utilisation des balises <% ... %> qui permettent d'exécuter du code java
+ * L'utilisation de la balise ##<%= %>## qui permet d'insérer la valeur d'une variable
+
+
+En plaçant ce fichier dans le répertoire ##src/main/webapp## de notre projet, on va pouvoir y accéder à l'adresse http://localhost:8080/hello/hello.jsp.  Cependant, cette version n'utilise pas la session pour sauvegarder le nom de l'utilisateur. On pourrait coder la même logique en java dans notre JSP, mais on se retrouverait de nouveau en train de mélanger la présentation de la logique. Heureusement, on peut importer notre code java à l'intérieur d'une JSP. L'autre chose que l'on va faire, c'est extraire les parties qui nous semble communes à toutes les pages web de notre application dans des fichiers réutilisables. Cela donne alors :
+
+{{example title="JSP : deuxième exemple (hello2.jsp)"}}
+{{code language="jsp"}}
+<%@ page import = "org.isen.hello.HelloServlet" %>
+<% String title = "Hello JSP" %>
+<%@ include file="header.jsp" %>
+
+
+<%
+  String name = HelloServlet.getNameFromRequest(request);
+%>
+
+
+<h1>Hello <%= name %></h1>
+
+<form method="get">
+<input name="name"/>
+<input type="submit"/>
+</form>
+
+
+<%@ include file="footer.jsp" %>
+{{/code}}
+{{/example}}

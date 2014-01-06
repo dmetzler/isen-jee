@@ -20,8 +20,7 @@ public class FizzBuzzModule extends AbstractModule {
         try {
             Class<?> klass = Class.forName(className);
             return (Function<Integer, String>) klass.newInstance();
-        } catch (ClassNotFoundException | InstantiationException
-                | IllegalAccessException e) {
+        } catch (Exception e) {
             return null;
         }
 
@@ -32,7 +31,7 @@ public class FizzBuzzModule extends AbstractModule {
         try {
             //Ici on bind les propriétés à leur nom. On va donc
             //pouvoir injecter les propriétés du fichier fizzbuzz.properties
-        	//directement dans nos classes.
+            //directement dans nos classes.
             Names.bindProperties(binder(), getProperties());
         } catch (IOException e) {
             System.out.println("Unable to bind properties");

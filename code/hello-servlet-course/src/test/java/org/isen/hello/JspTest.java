@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class JspTest extends JettyHarness {
 
-    private static final String INDEX_URI = getBaseUri() + "/index.jsp";
+    private static final String INDEX_URI = getBaseUri() + "/hello.jsp";
 
     @Test
     public void itCanGetTheIndexPage() throws Exception {
