@@ -1,0 +1,59 @@
+<form role="form" name="myForm">
+  <fieldset>
+
+    <legend ng-show="post.id">Edit a post</legend>
+    <legend ng-hide="post.id">Create a post</legend>
+
+    <div class="form-group" ng-class="{'has-error': myForm.title.$invalid}">
+      <label class="control-label" for="title">Title</label>
+      <input class="form-control"
+             type="text"
+             name="title"
+             ng-model="post.title"
+             required/>
+
+      <span ng-show="myForm.title.$error.required" class="help-block">Required</span>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': myForm.author.$invalid}">
+      <label class="control-label" for="title">Author</label>
+      <input class="form-control"
+             type="text"
+             name="author"
+             ng-model="post.user"
+             required/>
+
+      <span ng-show="myForm.author.$error.required" class="help-block">Required</span>
+    </div>
+
+
+    <div class="form-group" ng-class="{'has-error': myForm.author.$invalid}">
+      <label class="control-label" for="title">Content</label>
+      <textarea class="form-control"
+             name="content"
+             ng-model="post.content"
+             required/>
+      </textarea>
+
+      <span ng-show="myForm.content.$error.required" class="help-block">Required</span>
+    </div>
+
+
+
+    <div class="form-actions">
+      <a href="#/" class="btn btn-default">Cancel</a>
+
+      <button ng-click="save()"
+              ng-disabled="isClean() || myForm.$invalid"
+              class="btn btn-primary">Save</button>
+
+      <button ng-click="destroy()"
+              ng-show="post.id"
+              class="btn btn-danger">Delete</button>
+    </div>
+  </fieldset>
+</form>
+
+
+
+

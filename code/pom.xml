@@ -23,6 +23,7 @@
     <module>jpa</module>
     <module>hello-servlet</module>
     <module>hello-servlet-course</module>
+    <module>jaxrs-blog</module>
 
 
   </modules>

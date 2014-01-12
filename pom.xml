@@ -19,6 +19,9 @@
     <wikbook.source>${pom.basedir}/src/main/wikbook</wikbook.source>
     <wikbook.target>${project.build.directory}/wikbook</wikbook.target>
     <jetty.version>9.1.0.v20131115</jetty.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <openejb.version>4.6.0</openejb.version>
+    <tomee.version>1.6.0</tomee.version>
   </properties>
 
 
@@ -208,6 +211,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.0</version>
           <configuration>
             <source>1.7</source>
             <target>1.7</target>
@@ -421,6 +425,40 @@
       <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>6.0-5</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>tomee-embedded</artifactId>
+      <version>${tomee.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>openejb-cxf-rs</artifactId>
+      <version>${openejb.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>tomee-jaxrs</artifactId>
+      <version>${tomee.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>ziplock</artifactId>
+      <version>1.6.0</version>
+      <scope>test</scope>
+    </dependency>
+
+
+
 
 
     </dependencies>

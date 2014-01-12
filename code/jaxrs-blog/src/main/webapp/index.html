@@ -1,0 +1,24 @@
+<html>
+<head>
+  <title>Simple JAXRS Blog</title>
+  <link rel="stylesheet" type="text/css" href="components/bootstrap.min.css">
+  <script src="components/angular.min.js"></script>
+</head>
+<body ng-app="jaxrs-blog">
+  <div class="container" ng-controller="ListCtrl">
+    <div class="header">
+      <h3 class="text-muted">Simple JAXRS Blog</h3>
+    </div>
+
+    <div ng-view>
+    </div>
+
+    <div class="footer">
+      <p>&copy; ISEN 2014</p>
+    </div>
+  </div>
+
+  <script src="scripts/app.js"></script>
+
+</body>
+</html>
