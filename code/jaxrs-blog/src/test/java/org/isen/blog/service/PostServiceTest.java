@@ -28,35 +28,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class PostServiceTest {
+public class PostServiceTest extends ContainerHarness {
 
-    private static EJBContainer container;
-
-    @BeforeClass
-    public static void start() throws IOException {
-        final File webApp = Archive.archive()
-                .copyTo("WEB-INF/classes", jarLocation(PostDAO.class)).asDir();
-        final Properties p = new Properties();
-        p.setProperty(EJBContainer.APP_NAME, "jaxrs-blog");
-        p.setProperty(EJBContainer.PROVIDER, "tomee-embedded"); // need web
-                                                                // feature
-        p.setProperty(EJBContainer.MODULES, webApp.getAbsolutePath());
-        p.setProperty(EmbeddedTomEEContainer.TOMEE_EJBCONTAINER_HTTP_PORT, "-1"); // random
-                                                                                    // port
-        container = EJBContainer.createEJBContainer(p);
-    }
-
-    @AfterClass
-    public static void stop() {
-        if (container != null) {
-            container.close();
-        }
-    }
 
     @Test
     public void itCanCreateAPost() throws NamingException {
 
-        final PostDAO dao = getPostDAO();
+        final PostDAO dao = getEjb("PostDAO", PostDAO.class);
         final PostServiceClientAPI client = JAXRSClientFactory.create(getServiceURI(),
                 PostServiceClientAPI.class);
 
@@ -89,7 +67,7 @@ public class PostServiceTest {
     @Test
     public void itCanViewAPost() throws Exception {
 
-        PostDAO dao = getPostDAO();
+        final PostDAO dao = getEjb("PostDAO", PostDAO.class);
         Post post = dao.create("A new post", "Another Content", "jdoe");
 
 
@@ -107,7 +85,7 @@ public class PostServiceTest {
 
     @Test
     public void itCanDeleteAPost() throws Exception {
-        PostDAO dao = getPostDAO();
+        final PostDAO dao = getEjb("PostDAO", PostDAO.class);
         Post post = dao.create("A new post", "Another Content", "jdoe");
 
 
@@ -148,17 +126,6 @@ public class PostServiceTest {
 
     }
 
-    private String getServiceURI() {
-        final String uri = "http://127.0.0.1:"
-                + System.getProperty(EmbeddedTomEEContainer.TOMEE_EJBCONTAINER_HTTP_PORT)
-                + "/jaxrs-blog";
-        return uri;
-    }
 
-
-    private PostDAO getPostDAO() throws NamingException {
-        final PostDAO dao = (PostDAO) container.getContext().lookup("java:global/jaxrs-blog/PostDAO");
-        return dao;
-    }
 
 }
