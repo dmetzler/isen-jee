@@ -2,30 +2,15 @@ package org.isen.blog.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.ejb.embeddable.EJBContainer;
 import javax.naming.NamingException;
 
 import org.isen.blog.model.Post;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.isen.blog.service.ContainerHarness;
 import org.junit.Test;
 
-public class ModelsTest {
+public class ModelsTest extends ContainerHarness {
 
-    private static EJBContainer container;
-
-    @BeforeClass
-    public static void start() {
-        container = EJBContainer.createEJBContainer();
-    }
-
-    @AfterClass
-    public static void stop() {
-        if (container != null) {
-            container.close();
-        }
-    }
-
+    
     @Test
     public void itCanCreateAPost() throws NamingException {
         final PostDAO dao = getPostDAO();
