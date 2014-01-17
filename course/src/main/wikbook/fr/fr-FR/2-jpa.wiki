@@ -1,1 +1,893 @@
-  = JPA =
+Lorsque l'on développe des applications d'entreprise, il est rare que l'on n'ait pas besoin de sauvegarder les données pour les récupérer plus tard. Dans la plupart des cas, on utilise des bases de données relationnelles : Oracle, Microsoft SQL Server, IBM DB2 ou encore des solutions open source : MySQL ou PostgreSQL. Java possède une API permettant de se connecter à ces bases de données de manière homogène : JDBC. Cela permet de requêter, sans connaître l'implémentation, les bases de données avec le langage normalisé SQL.
+
+Le problème est qu'en Java on travaille avec des objets et pas avec des tableaux. Pour récupérer les données des tableaux et les injecter dans les objets, on fait la plupart du temps les mêmes opérations pour créer, récupérer, mettre à jour et supprimer des données. C'est ce que l'on appelle CRUD (Create, Retrieve, Update and Delete). Comme ces opérations sont tout le temps les mêmes, on a créé des librairies et des API pour automatiser cela. En Java, c'est JPA : Java Persistence API.
+
+JPA propose une implémentation d'un mapping relationnel-objet : Object Relationnal Mapping (ORM). C'est le fait de mapper un objet Java sur une table de base de donnée et de fournir des mécanismes automatiques pour injecter les donnée des objets avec les données des différentes tables.
+
+= Cas d'usage : un librairie de gestion de blog
+
+Pour illustrer l'utilisation de JPA, nous allons créer une librairie permettant de gérer un blog. Nous ne développerons pas le blog, simplement le modèle métier et la librairie permettant d'y accéder.
+
+Notre librairie devra permettre de gérer un collection de billets de blog, attachés à une catégorie et permettre de commenter chaque billet. Pour cela, nous mettrons en place le modèle de données suivant :
+
+
+TODO
+
+
+Trois tables permettent de stocker les différents concepts de notre blog :
+
+ * BlogEntry : permet de stocker chaque billet
+
+ * Comments : permet de stocker les commentaires liés par une relation “un à plusieurs” à la table ##BlogEntry##
+
+ * Category : permet de stocker les différents catégories reliées à la table ##BlogEntry## par une relation “plusieurs à plusieurs”.
+
+Notre librairie devra permettre les différentes opérations métiers liées à la gestion du blog, sans que le développeur ait à savoir que l'implémentation utilise JPA. Voici l'interface utilisée pour ##BlogEntry## :
+
+{{example title="JPA : interface BlogEntry"}}
+{{java}}
+public interface BlogEntry {
+
+    Long getId();
+
+    String getTitle();
+    void setTitle(String title);
+
+    DateTime getDate();
+    void setDate(DateTime date);
+
+    void setAuthor(String string);
+    String getAuthor();
+
+    void setContent(String string);
+    String getContent();
+
+    //Comments management
+    List<Comment> getComments();
+    void addComment(Comment comment);
+    void removeComment(Comment comment);
+
+
+    //Category management
+    public List<Category> getCategories();
+    void addCategory(Category category);
+    void removeCategory(Category category);
+
+}
+{{/java}}
+{{/example}}
+
+Pour manipuler cette interface, on utilisera une classe d'accès au données (DAO : Data Access Object) dont l'interface est la suivante :
+
+
+
+
+{{example title="JPA : accès au objets BlogDao"}}
+{{java}}
+public interface BlogDAO {
+
+    BlogEntry createEntry(String title);
+
+    BlogEntry getBlogEntry(Long id);
+
+    List<BlogEntry> getBlogEntries();
+
+    List<BlogEntry> getLastBlogEntries(int count);
+
+    List<BlogEntry> getBlogEntries(DateTime from, DateTime to);
+
+    List<BlogEntry> getBlogEntriesForMonth(int year, int month);
+
+    void saveEntry(BlogEntry entry);
+
+    void removeEntry(BlogEntry entry);
+
+
+}{{/java}}
+{{/example}}
+
+
+On ne détaillera pas ici les API ##Comment## et ##Category## qui sont assez simples et sont périphériques au problème proposé. Maintenant que nous avons établi le contrat de notre librairie, nous allons l'implémenter avec JPA au dessus du modèle de données relationnel présenté au dessus.
+
+
+= Entity beans
+
+L'élément principal de JPA est le bean entité. Il s'agit d'un bean que l'on annote avec l'annotation ##@Entity##. De par le principe de “convention over configuration”, le nom de la classe sera mappée sur une table du même nom. D'autre part, toutes les variables membres seront mappées sur des colonnes de même nom. Il n'y a donc rien de vraiment particulier à faire sur cette classe. Dans notre exemple, nous créons une classe ##BlogEntryImpl## avec le code suivant :
+
+{{example title="JPA : entity bean BlogEntryImpl"}}
+{{java}}
+@Entity(name = "BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String title;
+    private String author;
+    private String content;
+    private DateTime date;
+
+    public BlogEntryImpl(String title) {
+        setTitle(title);
+        setDate(new DateTime());
+    }
+
+    @Override
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    ...
+{{/java}}
+{{/example}}
+
+
+Comme notre classe s'appelle ##BlogEntryImpl##, nous sommes obligés de spécifier le nom de la véritable table sous-jacente dans le paramètre de l'annotation ##@Entity##. Une autre annotation indispensable est l'annotation @Id qui indique quelle est la clé primaire à utiliser. Elle est accolée à l'annotation ##@GeneratedValue## qui permet de faire générer la clé à la base de données.
+
+Pour vérifier que la sérialisation dans une base de données fonctionne, nous allons écrire le test suivant :
+
+
+{{example title="JPA : premier test"}}
+{{java}}
+public class BlogDAOTest {
+    @Test
+    public void iCanCreateAndRetrieveABlogEntry() throws Exception {
+        BlogDAO dao = new JPABlogDAO();
+
+        // On crée un billet de blog
+        BlogEntry entry = dao.createEntry("Mon billet de blog");
+        entry.setAuthor("Damien Metzler");
+        entry.setContent("Le contenu de mon billet");
+        checkBlogEntry(entry);
+
+        // On le sauvegarde
+        dao.saveEntry(entry);
+
+        // On le récupère
+        List<BlogEntry> entries = dao.getBlogEntries();
+        assertThat(entries.size(), is(1));
+
+        entry = entries.get(0);
+        checkBlogEntry(entry);
+
+    }
+
+    private void checkBlogEntry(BlogEntry entry) {
+        assertThat(entry.getTitle(), is("Mon billet de blog"));
+        assertThat(entry.getAuthor(), is("Damien Metzler"));
+        assertThat(entry.getContent(), is("Le contenu de mon billet"));
+        assertThat(entry.getDate().toString("YYYYmmdd"),
+                is(new DateTime().toString("YYYYmmdd")));
+
+    }
+
+}
+{{/java}}
+{{/example}}
+
+
+Nous avons vu que l'implémentation JPA de ##BlogEntry## était relativement simple et directe, il nous faut maintenant écrire celle de ##JPABlogDAO##. Le DAO est une classe permettant de gérer les entités. Pour l'implémenter nous aurons besoin d'un autre objet de JPA : l'entity manager.
+
+
+= La gestion des entités : EntityManager
+
+Afin de gérer la persistence et la récupération des entités, JPA propose un objet appelé ##EntityManager## et une fabrique ##EntityManagerFactory##. Notre objet DAO aura besoin d'un ##EntityManager## pour gérer toutes ses opérations. Pour le récupérer, nous utiliserons un des principes vu précédemment : l'injection de dépendances. Guice nous servira pour instancier notre objet DAO et gérer les injections de dépendances, il doit donc être capable de nous fournir un EntityManager.
+
+Afin de vérifier la configuration des différentes librairies, nous écrions le test suivant :
+
+
+{{example title="JPA : test d'injection d'un entity manager"}}
+{{java}}
+@Test
+    public void canRetrieveEntityManagerWithGuice() throws Exception {
+        Injector injector = Guice.createInjector(new H2DBModule());
+        EntityManager em = injector.getInstance(EntityManager.class);
+        assertThat(em, is(notNullValue()));
+    }
+{{/java}}
+{{/example}}
+
+
+Dans un premier temps, ce test va bien sûr échouer. Il va nous falloir configurer les différents librairies et fichiers pour que JPA fonctionne. Il existe plusieurs implémentation de JPA, nous utiliserons ici une implémentation libre : Hibernate. Il existe d'autres implémentations de JPA comme Oracle TopLink ou OpenJPA. Pour que JPA s'active, il faut qu'il trouve un fichier nommé ##persistence.xml## dans le répertoire ##META-INF## à la racine du classpath. Ce fichier doit contenir plusieurs informations de configuration :
+
+
+{{example title="JPA : fichier persistence.xml"}}
+{{java}}
+<persistence>
+  <persistence-unit name="db-manager">
+  </persistence-unit>
+</persistence>
+{{/java}}
+{{/example}}
+
+
+Dans un projet Maven, ce fichier peut être placé dans le répertoire src/main/resources/META-INF/. Dans ce fichier, on ne spécifie que le nom de l'unité de persistence que l'on nomme ici db-manager. On pourrait spécifier ici les paramètres de connexion à la base de données ou d'autres éléments de configuration, mais on préfèrera le faire de manière programmatique au moment de l'injection de dépendance. De ce fait, on pourra par l'injection de dépendance choisir l'implémentation choisie, notamment pour les tests.
+
+Dans le cadre de notre test, nous utilisons un module utilisant la base de données H2 qui est un moteur de base de données léger parfaitement adapté aux tests. Le module Guice utilise l'annotation @Provides sur des méthodes permettant de fournir d'une part l'EntityManagerFactory et d'autre part l'EntityManager. C'est dans la méthode retournant l'EntityManagerFactory que l'on paramètre l'implémentation de JPA (ici Hibernate avec JPA).
+
+
+
+{{example title="JPA : Module Guice de configuration de Hibernate"}}
+{{java}}
+public class H2DBModule extends AbstractModule {
+
+    private static final ThreadLocal<EntityManager> ENTITY_MANAGER_CACHE = new ThreadLocal<EntityManager>();
+
+    @Override
+    protected void configure() {
+        bind(BlogDAO.class).to(JPABlogDAO.class);
+    }
+
+    @Provides
+    @Singleton
+    public EntityManagerFactory providesEntityManagerFactory() {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put("hibernate.connection.driver_class", "org.h2.Driver");
+        properties.put("hibernate.connection.url", "jdbc:h2:target/test");
+        properties.put("hibernate.connection.username", "sa");
+        properties.put("hibernate.connection.password", "");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+        properties.put("hibernate.hbm2ddl.auto", "create");
+        return Persistence.createEntityManagerFactory("db-manager", properties);
+    }
+
+    @Provides
+    public EntityManager provideEntityManager(
+            EntityManagerFactory entityManagerFactory) {
+        EntityManager entityManager = ENTITY_MANAGER_CACHE.get();
+        if (entityManager == null) {
+            ENTITY_MANAGER_CACHE.set(entityManager = entityManagerFactory
+                    .createEntityManager());
+        }
+        return entityManager;
+    }
+}
+{{/java}}
+{{/example}}
+
+
+
+Ce module Guice est un module de test. Quand on utilisera la librairie dans une application en production, il faudra fournir un module qui gère toutes les injections de productions. On préfèrera notament utiliser des fichiers de propriétés pour stocker la configuration de Hibernate. En exécutant le test, on a des erreurs qui nous permettent au fur et à mesure d'ajouter les librairies manquantes à la mise en place de JPA et de son implémentation Hibernate : (sfl4j, dom4j ou jta).
+
+Revenons maintenant à notre test sur l'implémentation du ##BlogDAO##. Pour le faire passer, il faut implémenter les trois méthodes suivantes :
+
+
+{{example title="JPA : prmier test"}}
+{{java}}
+public class JPABlogDAO implements BlogDAO {
+
+    @Inject
+    EntityManager em;
+
+    @Override
+    public BlogEntry createEntry(String title) {
+        return new BlogEntryImpl(title);
+    }
+
+    @Override
+    public void saveEntry(BlogEntry entry) {
+        EntityTransaction tx = em.getTransaction();
+
+        tx.begin();
+        em.persist(entry);
+        tx.commit();
+    }
+
+    @Override
+    public BlogEntry getBlogEntry(Long id) {
+        return em.find(BlogEntryImpl.class, id);
+    }
+
+    ...
+
+{{/java}}
+{{/example}}
+
+La première méthode ne fait que retourner l'implémentation de ##BlogEntry## qui est annotée ##@Entity##. Les deux autres méthodes font appel à l'##EntityManager##. Afin de sauvegarder un objet, il suffit d'appeler la méthode persist de de celui-ci, tout en encadrant cette appel par une ouverture et une validation de transaction. Pour récupérer un objet en connaissant sa clé primaire, il suffit de faire appel à la méthode ##EntityManager#find(Class<?>, Long)##.
+
+= Requêter la base de données : JPQL et Named queries
+
+== JPQL : le SQL de l'objet
+
+Maintenant que nous savons créer des entrées de blog en base, il faut un moyen pour les requêter. JPA propose un langage de requête proche de SQL qui permet de requêter nos listes d'entités, ce langage s'appelle JPQL. Pour illustrer son utilisation, nous allons implémenter les méthodes de requêtage de l'interface BlogDAO. Commençons par la méthode permettant de récupérer toutes les entrées de blog en écrivant ce test :
+
+{{example title="JPA : test de requête"}}
+{{java}}
+    @Test
+    public void shouldBeAbleToRetrieveAllBlogEntries() throws Exception {
+        List<BlogEntry> blogEntries = dao.getBlogEntries();
+        assertThat(blogEntries.size(), is(1));
+    }
+{{/java}}
+{{/example}}
+
+L'EntityManager possède une méthode pour exécuter des requêtes en JPQL, la métode query retourne une liste d'entités.
+
+{{example title="JPA : requêter en JPQL"}}
+{{java}}
+List<BlogEntry> entries = em.createQuery("FROM BlogEntry").getResultList();
+{{/java}}
+{{/example}}
+
+
+Le langage JPQL est un peu plus succint que le SQL. On ne récupère effectivement que des objets et pas des colonnes, il n'y a donc dans cet exemple simple pas besoin de clause ##SELECT##.
+
+
+== Named queries
+
+Si on écrit ce code directement, on utilise une chaine de caractère qu'il est difficile de tracer dans le code, un peu à la manière des “nombres magiques”. Pour pallier à ce problème, on peut utiliser des requêtes nommées. JPA propose l'annotation @NamedQuery qui permet de référencer des requêtes. On les pose sur les classes des bean entités (le BlogEntryImpl dans notre exemple). Pour notre requête, cela donne :
+
+{{example title="JPA : requêtes nommées"}}
+{{java}}
+@NamedQuery(name = "ALL_BLOG_ENTRIES", query = "FROM BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+  ...
+}{{/java}}
+{{/example}}
+
+Pour l'exécuter, on dispose de la méthode createNamedQuery de l'EntityManager.
+
+{{example title="JPA : utilisation d'une requête nommée"}}
+{{java}}
+List<BlogEntry> entries = em.createNamedQuery(BlogEntryImpl.ALL_BLOG_ENTRIES).getResultList();
+{{/java}}
+{{/example}}
+
+
+Afin de ne pas utiliser de “chaine magique”, on a utilisé ici une constante de la classe BlogEntryImpl. De ce fait, toutes les références à la constante ALL_BLOG_ENTRIES sont contenues dans cette classe. La méthode de notre DAO devient :
+
+{{example title="JPA : requêtes nommées"}}
+{{java}}
+    @Override
+    public List<BlogEntry> getBlogEntries() {
+        return em.createNamedQuery(BlogEntryImpl.ALL_BLOG_ENTRIES)
+                .getResultList();
+    }
+{{/java}}
+{{/example}}
+
+== Ajouter de l'ordre
+
+Dans notre API de blog, les entrées doivent êtres récupérées par ordre de date décroissant. Nous allons donc ajouter un ordre à notre requête. Pour cela il faut ajouter un nouveau test :
+
+{{example title="JPA : test d'ordonancement"}}
+{{java}}
+
+    @Test
+    public void lastEntriesShouldBeRetrievedFirst() throws Exception {
+        createAndSaveEntry("last");
+        List<BlogEntry> blogEntries = dao.getBlogEntries();
+        assertThat(blogEntries.get(0).getTitle(), is("last"));
+    }
+{{/java}}
+{{/example}}
+
+Ce test échoue tant que l'on n'a pas rajouté une clause d'ordre à notre requête JPQL qui devient :
+
+{{example title="JPA : clause ORDER BY"}}
+{{java}}
+FROM BlogEntry ORDER BY date DESC
+{{/java}}
+{{/example}}
+
+
+== Requêtes paramétrées
+
+Nous disposons dans l'API de blog de deux aures méthodes permettant de récupérer des billets. Il s'agit de méthode prenant des paramètres de date. JPQL permet bien sûr de faire des requêtes paramétrées. Nous allons ajouter un test vérifiant la récupération de billet de date à date :
+
+{{example title="JPA : test de restriction sur une période"}}
+{{java}}
+
+    @Test
+    public void shouldBeAbleToRetrieveEntriesForAPeriod() throws Exception {
+        createAndSaveEntry("quatre", new DateTime(2010, 9, 6, 12, 42, 5, 0));
+        createAndSaveEntry("cinq", new DateTime(2010, 9, 15, 15, 42, 5, 0));
+
+        DateTime from = new DateTime(2010, 9, 10, 0, 0, 0, 0);
+        DateTime to = new DateTime(2010, 9, 30, 0, 0, 0, 0);
+        List<BlogEntry> entries = dao.getBlogEntries(from, to);
+        assertThat(entries.size(), is(1));
+    }
+{{/java}}
+{{/example}}
+
+
+Nous allons ajouter un requête nommée à la classe ##BlogEntryImpl##. Comme il y en a déjà une, il faut utiliser une notation particulière : ##@NamedQueries##. Cette deuxième requête référence deux paramètres nommés : from et to que l'on préfixe par des “deux points”.
+
+{{example title="JPA : named query paramétrée"}}
+{{java}}
+
+@NamedQueries({
+        @NamedQuery(name = "ALL_BLOG_ENTRIES", query = "FROM BlogEntry ORDER BY date DESC"),
+        @NamedQuery(name = "BLOG_ENTRIES_FOR_PERIOD", query = "FROM BlogEntry b WHERE b.date >= :from and b.date <= :to  ORDER BY date DESC") })
+@Entity(name = "BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+
+    public static final String ALL_BLOG_ENTRIES = "ALL_BLOG_ENTRIES";
+
+    public static final String BLOG_ENTRIES_FOR_PERIOD = "BLOG_ENTRIES_FOR_PERIOD";
+
+    ...
+
+{{/java}}
+{{/example}}
+
+
+Pour spécifier ces deux paramètres, l'API JPA ajoute une méthode à la classe ##Query## retournée par l'##EntityManager##. On peut référencer les paramètres par leur nom ou par leur position par un entier. L'utilisation d'un paramètre nommé est préférable car plus explicite. Lors de l'utilisation d'une ##Query##, on peut chainer les différentes méthodes setParameter pour rendre l'expression plus courte sans la rendre moins compréhensible.
+
+
+{{example title="JPA : utilisation de paramètres dans une requête"}}
+{{java}}
+
+    @Override
+    public List<BlogEntry> getBlogEntries(DateTime from, DateTime to) {
+        Query query = em
+                .createNamedQuery(BlogEntryImpl.BLOG_ENTRIES_FOR_PERIOD);
+        return query.setParameter("from", dateTimeToCal(from))
+                .setParameter("to", dateTimeToCal(to)).getResultList();
+    }
+
+    private Calendar dateTimeToCal(DateTime date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date.toDate());
+        return cal;
+    }
+
+{{/java}}
+{{/example}}
+
+La dernière méthode que l'on doit implémenter permet de récupérer tous les billets pour un mois donné. Cette méthode ne fera qu'utiliser la méthode précédente en utilisant les constructions de joda-time que l'on a vues précédemment. Cela donne :
+
+{{example title="JPA : utilisation de période"}}
+{{java}}
+
+    @Override
+    public List<BlogEntry> getBlogEntriesForMonth(int year, int month) {
+        DateTime from = new DateTime(year, month, 1, 0, 0, 0, 0);
+        DateTime to = from.dayOfMonth().withMaximumValue();
+        return getBlogEntries(from, to);
+    }
+{{/java}}
+{{/example}}
+
+
+= Suppression d'élément
+
+La dernière fonction à implémenter de notre DAO est la suppression d'élément. C'est encore une fois une méthode de l'##EntityManager## à laquelle il faut le bean entité à supprimer. Nous allons écrire le test permettant de vérifier la fonctionnalité :
+
+{{example title="JPA : test de suppression d'une entité"}}
+{{java}}
+
+    @Test
+    public void shouldBeAbleToRemoveAnEntry() throws Exception {
+        BlogEntry entry = createAndSaveEntry("toBeRemoved");
+        Long id = entry.getId();
+        dao.removeEntry(entry);
+        assertThat(dao.getBlogEntry(id), is(nullValue()));
+    }
+Pour l'implémenter simplement avec le code suivant :
+{{/java}}
+{{/example}}
+
+{{example title="JPA : suppression d'une entité"}}
+{{java}}
+
+@Override
+    public void removeEntry(BlogEntry entry) {
+        em.getTransaction().begin();
+        em.remove(entry);
+        em.getTransaction().commit();
+    }
+{{/java}}
+{{/example}}
+
+Maintenant que nous avons géré toutes les opérations simples sur l'élément ##BlogEntry##, il nous faut gérer les éléments associés : les commentaires et les catégories. Pour cela, nous avons besoin des notions de relations.
+
+
+= Gestion des relations
+
+Dans notre exemple, il y deux types de relations :
+
+ * une relation un à plusieurs entre les commentaires et un billet de blog (plusieurs commentaires pour un billet, mais un seul billet pour un commentaire)
+
+ * une relation plusieurs à plusieurs entre les catégories et un billet de blog (plusieurs catégories pour un billet et plusieurs billets par catégories)
+
+JPA permet de gérer ces deux types de relations.
+
+
+== Commentaires : releations un à plusieurs
+
+Les appels à la gestion des commentaires est faite à partir de l'objet ##BlogEntryImpl##. Nous écrirons les tests suivants pour vérifier le fonctionnement de l'API :
+
+{{example title="JPA : test de récupération des commentaires"}}
+{{java}}
+    @Test
+    public void iCanAddAndRetrieveComment() throws Exception {
+        BlogEntry entry = dao.createEntry("billet de test");
+        Comment comment = new FakeComment("author", "un commentaire");
+
+        entry.addComment(comment);
+        dao.saveEntry(entry);
+
+        entry = dao.getBlogEntry(entry.getId());
+        List<? extends Comment> comments = entry.getComments();
+        assertThat(comments.size(), is(1));
+        comment = comments.get(0);
+        assertThat(comment.getAuthor(),is("author"));
+        assertThat(comment.getContent(), is("un commentaire"));
+
+    }
+{{/java}}
+{{/example}}
+
+
+Dans notre exemple, la relation un à plusieurs consiste à relier plusieurs commentaires à un billet de blog. Au niveau de l'objet ##BlogEntryImpl##, cela revient à ajouter une collection de commentaires et une référence à une entrée de blog sur l'objet ##CommentImpl##. Cela donne :
+
+
+{{example title="JPA : edition des EntityBean"}}
+{{java}}
+
+BlogEntryImpl.java :
+--------------------
+
+@Entity(name = "BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+    ...
+
+    private List<CommentImpl> comments = new ArrayList<CommentImpl>();
+
+    ...
+
+CommentImpl.java :
+------------------
+
+@Entity(name = "Comment")
+public class CommentImpl implements Comment {
+
+    ...
+
+    private BlogEntryImpl blogEntry;
+
+    ...
+{{/java}}
+{{/example}}
+
+
+Si l'on exécute le test, hibernate nous informe qu'il n'a pas trouvé de moyen pour sérialiser les objets de type ##List<CommentImpl>## et ##BlogEntryImpl##, il faut donc ajouter des informations à ces deux variables. Cela se fait par l'intermédiaire des annotation ##@OneToMany## et ##@ManyToOne## que l'on posera sur les deux variables ajoutées précédemment :
+
+{{example title="JPA : annotation @OneToMany et @ManyToOne"}}
+{{java}}
+
+BlogEntryImpl.java :
+--------------------
+
+@Entity(name = "BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+    ...
+    @OneToMany(cascade=CascadeType.ALL, mappedBy="blogEntry")
+    private List<CommentImpl> comments = new ArrayList<CommentImpl>();
+
+    ...
+
+CommentImpl.java :
+-------------------
+
+@Entity(name = "Comment")
+public class CommentImpl implements Comment {
+
+    ...
+
+    @ManyToOne
+    @JoinColumn(name = "blog_id", nullable = false)
+    private BlogEntryImpl blogEntry;
+
+    ...
+{{/java}}
+{{/example}}
+
+
+Dans le cas de la relation ManytoOne, on peut spécifier le nom de la colonne qui effectuera la jointure avec l'annotation ##@JoinColumn##, on spécifie aussi qu'elle ne peut pas être nulle : effectivement un commentaire a toujours un billet de blog associé.
+
+Nous avons donc configuré les relations qui existaient entre nos deux classes commentaires et billet de blog. Cependant, le test ne s'exécute toujours pas correctement : les méthodes addComment et getComments n'ont pas été codées. Pour les implémenter, il suffit d'utiliser les méthodes de la liste pour ajouter des éléments et de retourner la liste quand il le faut, JPA s'occupe du reste :
+
+{{example title="JPA : implémetnation des relations"}}
+{{java}}
+
+    @Override
+    public List<? extends Comment> getComments() {
+        return comments;
+    }
+
+    @Override
+    public Comment addComment(Comment comment) {
+        CommentImpl jpaComment = new CommentImpl(this, comment.getAuthor(), comment.getContent());
+        comments.add(jpaComment);
+        return jpaComment;
+    }
+{{/java}}
+{{/example}}
+
+Pour la suppression d'élément maintenant, c'est un peu plus compliqué. Si nous écrivons le test suivant :
+
+
+{{example title="JPA : test de suppression de commentaires"}}
+{{java}}
+
+    @Test
+    public void commentCanBeRemoved() throws Exception {
+        BlogEntry entry = dao.createEntry("billet de test2");
+        Comment comment = new FakeComment("author", "un commentaire");
+        comment = entry.addComment(comment);
+
+        comment = new FakeComment("author", "un autre commentaire");
+        comment = entry.addComment(comment);
+        dao.saveEntry(entry);
+
+        entry = dao.getBlogEntriesByTitle("billet de test2").get(0);
+        assertThat(entry.getComments().size(), is(2));
+
+        entry.removeComment(comment);
+        dao.saveEntry(entry);
+
+        entry = dao.getBlogEntriesByTitle("billet de test2").get(0);
+        assertThat(entry.getComments().size(), is(1));
+    }
+{{/java}}
+{{/example}}
+
+avec l'implémentation suivante pour la méthode ##removeComment()## :
+
+
+{{example title="JPA : suppression des commentaires"}}
+{{java}}
+
+    @Override
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+    }
+
+{{/java}}
+{{/example}}
+
+le test devrait passer. Cependant, en observant les logs, on se rend compte qu'aucun appel DELETE n'est effectué sur la base de données. Cela doit nous alerter dans le sens où nous avons spécifié qu'un commentaire devait avoir une entrée de blog associée. Ce qui se passe, c'est qu'au sein de la session JPA, les commentaires sont bien enlevés. Comme on effectue la même requête pour récupérer le billet, l'implémentation ne fait pas de requête à la base pour récupérer les commentaires et le test passe comme si de rien n'était.
+
+Il nous faut donc écrire un test qui échoue sur la dernière assertion. Pour vider le mécanisme de cache qu'il peut y avoir au sein de la session JPA, on peut faire un appel à la méthode ##clear()## de l'##EntityManager## avant la dernière assertion. Le test échoue alors : nous pouvons donc corriger le problème.
+
+Ce qui se passe, c'est que JPA, dans sa version 1.0, ne propose pas de mécanisme pour supprimer les entités contenues dans une liste et que l'on supprimerait avec une simple méthode remove sur la liste. Dans sa version 2.0 JPA propose ce type de mécanisme et heureusement, dans notre cas, Hibernate propose une solution par l'annotation @Cascade. Voici ce que donne le code de ##BlogEntryImpl## une fois modifié :
+
+
+{{example title="JPA : suppression en cascade des objets orphelins"}}
+{{java}}
+
+@Entity(name = "BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+
+    ...
+
+    @OneToMany(cascade=CascadeType.ALL, mappedBy="blogEntry")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    private List<CommentImpl> comments = new ArrayList<CommentImpl>();
+
+    ...
+
+}
+
+{{/java}}
+{{/example}}
+
+Une fois que l'on a ajouté l'annotation, notre test fonctionne correctement.
+
+
+== Catégories : relations plusieurs à plusieurs
+
+La gestion des catégories fait appel commen on l'a vu à une relation un à plusieurs. Comme le cycle de vie des catégories est indépendant de celui des entrée de blog, il va nous falloir un objet permettant de les gérer. Il ne s'agit ni plus ni moins qu'un autre DAO dont l'interface est la suivante :
+
+{{example title="JPA : interface de gestion des catégories"}}
+{{java}}
+
+public interface CategoryDAO {
+
+    /**
+     * Get or create a category with the given name.
+     * The returned category doesn't have to be persisted
+     * after that
+     * @param categoryName
+     * @return
+     */
+    Category getOrCreateCategory(String categoryName);
+
+    /**
+     * Deletes a category
+     * @param category
+     */
+    void deleteCategory(Category category);
+
+    /**
+     * Returns all categories
+     * @return
+     */
+    List<Category> getCategories();
+}
+
+{{/java}}
+{{/example}}
+
+
+On ne détaillera pas ici son implémentation, ce n'est ni plus ni moins que la même chose que le ##BlogEntryDAO## avec une interface un peu plus simple notamment pour la création.
+
+Pour tester la relation entre une entrée de blog et des catégories, nous allons exécuter le test suivant :
+
+
+{{example title="JPA : test de gestion des catégories"}}
+{{java}}
+
+    @Test
+    public void categoryCanBeAddedToBlogEntries() throws Exception {
+        BlogEntry entry = blogDao.createEntry("entree1");
+        Category cat = catDao.getOrCreateCategory("categorie1");
+
+        entry.addCategory(cat);
+        blogDao.saveEntry(entry);
+
+        em.clear();
+        entry = blogDao.getBlogEntriesByTitle("entree1").get(0);
+        List<? extends Category> categories = entry.getCategories();
+        assertThat(categories.size(),is(1));
+        assertThat(categories.get(0).getName(), is("categorie1"));
+    }
+
+    @Test
+    public void categoryCanBeRemovedFromBlogEntries() throws Exception {
+        BlogEntry entry = blogDao.getBlogEntriesByTitle("entree1").get(0);
+        Category cat = catDao.getOrCreateCategory("categorie2");
+        entry.addCategory(cat);
+        blogDao.saveEntry(entry);
+        assertThat(entry.getCategories().size(),is(2));
+        entry.removeCategory(cat);
+        blogDao.saveEntry(entry);
+
+        em.clear();
+
+        entry = blogDao.getBlogEntriesByTitle("entree1").get(0);
+        assertThat(entry.getCategories().size(),is(1));
+
+    }
+{{/java}}
+{{/example}}
+
+
+Pour faire passer ce test, dans l'objet ##BlogEntryImpl##, nous allons stocker les catégories sous forme de liste, de la même manière que pour les commentaires. Pour que JPA s'en occupe, il suffit d'annoter la propriété avec l'annotation ##@ManyToMany##.
+
+
+{{example title="JPA : annotation @ManyToMAny"}}
+{{java}}
+
+@Entity(name = "BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+
+    ...
+
+    @ManyToMany
+    private List<CategoryImpl> categories = new ArrayList<CategoryImpl>();
+
+    ....
+}
+{{/java}}
+{{/example}}
+
+
+Ensuite, il faut implémenter les méthodes d'accès aux catégories pour qu'elles utilisent cette liste :
+
+
+{{example title="JPA : gestion des catégories dans les posts de blog"}}
+{{java}}
+
+@Entity(name = "BlogEntry")
+public class BlogEntryImpl implements BlogEntry {
+
+    ...
+
+    @Override
+    public List<? extends Category> getCategories() {
+        return categories;
+    }
+
+    @Override
+    public void addCategory(Category category) {
+        if (!getCategories().contains(category)) {
+            categories.add((CategoryImpl) category);
+        }
+    }
+
+    @Override
+    public void removeCategory(Category category) {
+        categories.remove(category);
+
+    }
+
+    ...
+
+}
+{{/java}}
+{{/example}}
+
+
+Pour la suppression de catégories, nous n'aurons pas le même problème que pour les commentaires. Effectivement, comme nous l'avons dis plus haut, le cycle de vie d'une catégorie est indépendant du cycle de vie d'une entrée de blog, cela simplifie les choses. De plus si l'on regarde attentivement les logs, on remarque qu'à chaque modification de la liste des catégories, Hibernate supprimes puis recrée toutes les relations :
+
+
+{{example title="JPA : logs hibernate"}}
+{{code}}
+
+21:37:28,622 DEBUG [SQLStatementLogger] delete from BlogEntry_Category where BlogEntry_id=?
+21:37:28,623 DEBUG [SQLStatementLogger] insert into BlogEntry_Category (BlogEntry_id, categories_id) values (?, ?)
+21:37:28,623 DEBUG [SQLStatementLogger] insert into BlogEntry_Category (BlogEntry_id, categories_id) values (?, ?)
+21:37:28,624 DEBUG [SQLStatementLogger] delete from BlogEntry_Category where BlogEntry_id=?
+21:37:28,626 DEBUG [SQLStatementLogger] insert into BlogEntry_Category (BlogEntry_id, categories_id) values (?, ?)
+De ce fait, il n'y a pas d'objet orphelin possible en base de données.
+{{/code}}
+{{/example}}
+
+De l'autre côté de la relation, il faut aussi pouvoir récupérer les entrées de blog liées à une catégorie. Le test suivant permettra de vérifier la fonctionnalité :
+
+
+{{example title="JPA : posts associés à une catégorie"}}
+{{java}}
+
+    @Test
+    public void categoryShouldHaveBlogEntries() throws Exception {
+        Category cat1 = catDao.getOrCreateCategory("categorie1");
+        Category cat2 = catDao.getOrCreateCategory("categorie2");
+
+        BlogEntry entry = blogDao.createEntry("entree2");
+        blogDao.saveEntry(entry);
+
+        entry.addCategory(cat1);
+        entry.addCategory(cat2);
+        blogDao.saveEntry(entry);
+
+        em.clear();
+
+        cat1 = catDao.getOrCreateCategory("categorie1");
+        cat2 = catDao.getOrCreateCategory("categorie2");
+
+        assertThat(cat1.getBlogEntries().size(), is(2));
+        assertThat(cat2.getBlogEntries().size(), is(1));
+    }
+{{/java}}
+{{/example}}
+
+
+Si l'on ajoute une simple annotation ##@ManyToMany## à une variable blogEntries, cela ne suffira pas. Effectivement, JPA créera une deuxième table d'association ce qui posera problème pour récupérer les véritables liaisons, qui seraient créées dans un sens et pas dans l'autre. Il faut donc ajouter une propriété d'un côté de la relation pour informer JPA de la variable qui tient la relation concernée. Cela se fait simplement par le code suivant :
+
+
+{{example title="JPA : sélection de la conlonne mappée"}}
+{{java}}
+
+@Entity(name = "Category")
+public class CategoryImpl implements Category {
+
+    ...
+
+    @ManyToMany(mappedBy="categories")
+    private List<BlogEntryImpl> blogEntries = new ArrayList<BlogEntryImpl>();
+
+    ...
+}
+
+{{/java}}
+{{/example}}
+
+
+= Conclusion
+
+JPA propose toute une série d'annotations permettant de spécifier le comportement de nos différents objets. L'avantage est que JPA le fait uniquement par le biai d'annotations, sans avoir à faire hériter nos objets d'une quelconque interface ou classe.
+
+Nous n'avons vu qu'une petite partie de tout ce que peut offrir JPA. Effectivement, il existe au sein même des annotations des manières de paramétrer plus finement le mapping relationnel objet. On peut par exemple paramétrer le nom des tables ou colonnes qui gèrent les relations, la manière de récupérer les objets d'une relation (en mode paresseux ou lazy par exemple) ou encore la manière de gérer les suppression ou mises à jour en cascade.
+
+JPA a aussi certains manques. Ce n'est qu'une API, et les implémentations disponibles comme Hibernate proposent des fonctionnalités plus riches. Cependants, on préfèrera toujours se rapprocher de la norme et faire les choix d'une spécification sciemment. D'autre part, nous avons vu que JPA2 qui est en train d'arriver propose des corrections et évolutions qui vont toujours dans le sens de la simplification pour le développeur.
