@@ -10,8 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import org.isen.blog.dao.CommentDAO;
 
+import org.isen.blog.dao.CommentDAO;
 import org.isen.blog.dao.PostDAO;
 import org.isen.blog.model.Post;
 
@@ -22,7 +22,7 @@ public class PostService {
 
     @Inject
     private PostDAO dao;
-    
+
     @Inject
     private CommentDAO cdao;
 

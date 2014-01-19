@@ -1,13 +1,13 @@
 package org.isen.blog.dao;
 
+import java.util.List;
+
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-
-import java.util.List;
 
 /**
  * Simply maps the entitymanager.
