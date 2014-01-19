@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core">
+
+<ui:composition template="/template.xhtml">
+  <ui:define name="content">
+    <h:form id="createBlogPost">
+      <fieldset>
+
+        <legend>Edit a post</legend>
+        <h:messages id="messages" globalOnly="false" />
+
+        <div class="form-group">
+          <label class="control-label" for="title">Title</label>
+          <h:inputText class="form-control" id="post_title"
+            value="#{blogManager.current.title}" required="true" />
+          <span class="help-block">Required</span>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label" for="title">Author</label>
+          <h:inputText class="form-control" id="post_user"
+            value="#{blogManager.current.user}" required="true" />
+          <span class="help-block">Required</span>
+        </div>
+
+
+        <div class="form-group">
+          <label class="control-label" for="title">Content</label>
+          <h:inputTextarea class="form-control" id="post_content"
+            value="#{blogManager.current.content}" />
+        </div>
+
+        <div class="form-actions">
+          <h:commandLink id="link" immediate="true"
+            action="#{blogManager.cancel()}" class="btn btn-default">
+               Cancel
+             </h:commandLink>
+          &nbsp;
+          <h:commandButton class="btn btn-primary"
+            rendered="#{blogManager.current.getId() == 0}" id="createButton"
+            value="Create" action="#{blogManager.save()}" />
+          <h:commandButton rendered="#{blogManager.current.getId() > 0}"
+            id="editButton" value="Update" action="#{blogManager.save()}" />
+        </div>
+      </fieldset>
+    </h:form>
+
+  </ui:define>
+</ui:composition>
+</html>

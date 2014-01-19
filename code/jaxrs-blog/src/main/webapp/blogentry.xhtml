@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:f="http://java.sun.com/jsf/core">
+
+   <ui:composition template="/template.xhtml">
+      <ui:define name="content">
+
+         <h1>Blog entry</h1>
+         <h2>
+           <h:outputText id="blogTitle" value="#{blogEntry.current.title}"/>
+         </h2>
+         Le <h:outputText value="#{blogEntry.current.date.toString('dd-mm-YYYY')}"/>
+         par <h:outputText value="#{blogEntry.current.author}"/>
+
+         <div class="blogContent">
+           <h:outputText value="#{blogEntry.current.content}"/>
+         </div>
+
+         <hr/>
+
+         <h1>Commentaires</h1>
+         <ul id="comments">
+         <ui:repeat var="comment" value="#{blogEntry.comments}">
+           <li>
+             Le <h:outputText value="#{comment.date.toString('dd-MM-YYYY')}" />,
+             <h:outputText value="#{comment.author}" /> a dit :
+             <div class="comment">
+               <h:outputText value="#{comment.content}" />
+             </div>
+           </li>
+         </ui:repeat>
+         </ul>
+
+         <h1>New Comment</h1>
+         <h:messages id="messages" globalOnly="false"/>
+         <h:form id="commentEntry">
+            <div class="form-row">
+              <label for="author">Auteur</label>
+              <div>
+                <h:inputText id="author" value="#{blogEntry.commentAuthor}" required="true"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label for="content">Contenu</label>
+              <div>
+                <h:inputTextarea id="content" value="#{blogEntry.commentContent}" />
+              </div>
+            </div>
+
+           <div class="form-row">
+              <div>
+                <h:commandButton id="addButton" value="Ajouter" action="#{blogEntry.addComment}"/>
+              </div>
+            </div>
+         </h:form>
+      </ui:define>
+   </ui:composition>
+</html>
