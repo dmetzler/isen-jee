@@ -16,14 +16,14 @@
         <div class="form-group">
           <label class="control-label" for="title">Title</label>
           <h:inputText class="form-control" id="post_title"
-            value="#{blogManager.current.title}" required="true" />
+            value="#{currentPost.title}" required="true" />
           <span class="help-block">Required</span>
         </div>
 
         <div class="form-group">
           <label class="control-label" for="title">Author</label>
           <h:inputText class="form-control" id="post_user"
-            value="#{blogManager.current.user}" required="true" />
+            value="#{currentPost.user}" required="true" />
           <span class="help-block">Required</span>
         </div>
 
@@ -31,20 +31,17 @@
         <div class="form-group">
           <label class="control-label" for="title">Content</label>
           <h:inputTextarea class="form-control" id="post_content"
-            value="#{blogManager.current.content}" />
+            value="#{currentPost.content}" />
         </div>
 
         <div class="form-actions">
-          <h:commandLink id="link" immediate="true"
-            action="#{blogManager.cancel()}" class="btn btn-default">
+          <h:commandLink id="link" immediate="true" action="#{blogManager.update()}"
+            class="btn btn-default">
                Cancel
              </h:commandLink>
           &nbsp;
-          <h:commandButton class="btn btn-primary"
-            rendered="#{blogManager.current.getId() == 0}" id="createButton"
-            value="Create" action="#{blogManager.save()}" />
-          <h:commandButton rendered="#{blogManager.current.getId() > 0}"
-            id="editButton" value="Update" action="#{blogManager.save()}" />
+          <h:commandButton id="editButton" value="Update"
+            action="#{blogManager.update()}" />
         </div>
       </fieldset>
     </h:form>

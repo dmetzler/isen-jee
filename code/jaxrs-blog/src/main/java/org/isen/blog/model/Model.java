@@ -1,7 +1,5 @@
 package org.isen.blog.model;
 
-import java.io.Serializable;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.GeneratedValue;
@@ -13,7 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 @MappedSuperclass
 @Access(AccessType.FIELD)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class Model implements Serializable {
+public abstract class Model {
 
     @Id
     @GeneratedValue

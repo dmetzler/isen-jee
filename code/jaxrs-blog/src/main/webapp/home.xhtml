@@ -5,20 +5,19 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:f="http://java.sun.com/jsf/core">
 
+
+
 <ui:composition template="/template.xhtml">
   <ui:define name="content">
-    <h:form id="blogs">
+     <h:form id="viewPosts">
     <ul>
-      <ui:repeat var="entry" value="#{blogManager.all}">
-        <li><h:commandLink id="link"
-            action="#{blogManager.view(entry)}">
-            <h:outputText value="#{entry.getTitle()}" />
-          </h:commandLink></li>
-      </ui:repeat>
+    <ui:repeat var="post" value="#{blogManager.all}">
+        <li><h:commandLink action="#{blogManager.view(post)}" value="#{post.getTitle()}"/></li>
+    </ui:repeat>
+
     </ul>
 
-      <h:commandLink class="btn btn-small btn-default" id="createPost" value="Create post"
-        action="#{blogManager.create()}" />
+    <h:commandButton value="Create" action="#{blogManager.create()}" class="btn btn-default"/>
     </h:form>
   </ui:define>
 </ui:composition>

@@ -9,20 +9,20 @@
   <ui:define name="content">
     <h:form id="createBlogPost">
       <h1>
-        <h:outputText value="#{blogManager.current.getTitle()}" />
+        <h:outputText value="#{currentPost.title}" />
         <small>by <h:outputText
-            value="#{blogManager.current.getUser()}" /></small>
+            value="#{currentPost.user}" /></small>
       </h1>
-       on  <h:outputText value="#{blogManager.current.getCreated()}">
+       on  <h:outputText value="#{currentPost.created}">
         <f:convertDateTime pattern="dd/MM/yyyy @ HH:mm" />
       </h:outputText>
       <br />
-      <h:outputText value="#{blogManager.current.getContent()}" />
+      <h:outputText value="#{currentPost.content}" />
 
 
       <div class="form-actions">
-        <h:commandButton id="editPost" class="btn btn-primary"
-          action="#{blogManager.edit()}" value="Edit" />
+        <h:commandButton id="editPost" class="btn btn-primary" action="#{blogManager.edit()}"
+           value="Edit" />
         &nbsp;
         <h:commandButton id="cancel" class="btn btn-danger"
           action="#{blogManager.delete()}" value="Delete" />

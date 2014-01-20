@@ -14,58 +14,51 @@ import org.isen.blog.model.Post;
 @SessionScoped
 public class BlogManager implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     @Inject
     PostDAO dao;
 
-    Post currentPost = null;
+    private Post currentPost;
 
     public List<Post> getAll() {
         return dao.list(0, 20);
     }
 
+    public String view(Post post) {
+        this.currentPost = post;
+        return "view";
+    }
+
     public String create() {
-        currentPost = new Post();
+        this.currentPost = new Post();
         return "edit";
     }
 
-    public String view(Post post) {
-        currentPost = post;
-        return "view";
-    }
-    public String cancel() {
-        if(currentPost.getId() > 0) {
-            return "view";
+    public String update() {
+        if (currentPost.getId() == 0) {
+            dao.create(currentPost.getTitle(), currentPost.getContent(),
+                    currentPost.getUser());
         } else {
-            return "home";
+            currentPost = dao.update(currentPost.getId(),
+                    currentPost.getUser(), currentPost.getTitle(),
+                    currentPost.getContent());
         }
-
+        return "view";
     }
 
     public String delete() {
         dao.delete(currentPost.getId());
-        currentPost = null;
         return "home";
     }
 
     public String edit() {
         return "edit";
+    }
 
+    public String cancel() {
+        return "view";
     }
 
     public Post getCurrent() {
         return currentPost;
     }
-
-    public String save() {
-        if (currentPost.getId() > 0) {
-            dao.update(currentPost.getId(), currentPost.getUser(),
-                    currentPost.getTitle(), currentPost.getContent());
-        } else {
-            dao.create(currentPost.getTitle(), currentPost.getContent(), currentPost.getUser());
-        }
-        return "view";
-    }
-
 }
