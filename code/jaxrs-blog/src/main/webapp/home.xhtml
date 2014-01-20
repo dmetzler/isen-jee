@@ -10,14 +10,14 @@
 <ui:composition template="/template.xhtml">
   <ui:define name="content">
      <h:form id="viewPosts">
-    <ul>
+    <ul id="postList">
     <ui:repeat var="post" value="#{blogManager.all}">
         <li><h:commandLink action="#{blogManager.view(post)}" value="#{post.getTitle()}"/></li>
     </ui:repeat>
 
     </ul>
 
-    <h:commandButton value="Create" action="#{blogManager.create()}" class="btn btn-default"/>
+    <h:commandButton id="createPost" value="Create" action="#{blogManager.create()}" class="btn btn-default"/>
     </h:form>
   </ui:define>
 </ui:composition>

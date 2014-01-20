@@ -2,11 +2,14 @@ package org.isen.blog.jsf;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.isen.blog.dao.CommentDAO;
+import org.isen.blog.model.Comment;
 import org.isen.blog.model.Post;
 
 @SessionScoped
@@ -15,6 +18,9 @@ public class CurrentPost implements Serializable {
 
     @Inject
     BlogManager bm;
+
+    @Inject
+    CommentDAO cdao;
 
     private Post getPost() {
         return bm.getCurrent();
@@ -48,4 +54,7 @@ public class CurrentPost implements Serializable {
         return getPost().getCreated();
     }
 
+    public List<Comment> getComments() {
+        return cdao.list(getPost().getId());
+    }
 }

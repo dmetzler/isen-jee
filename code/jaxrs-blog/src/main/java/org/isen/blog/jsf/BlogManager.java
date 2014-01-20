@@ -7,6 +7,7 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.isen.blog.dao.CommentDAO;
 import org.isen.blog.dao.PostDAO;
 import org.isen.blog.model.Post;
 
@@ -16,6 +17,12 @@ public class BlogManager implements Serializable {
 
     @Inject
     PostDAO dao;
+
+    @Inject
+    CommentDAO cdao;
+
+    @Inject
+    CommentBean comment;
 
     private Post currentPost;
 
@@ -35,7 +42,7 @@ public class BlogManager implements Serializable {
 
     public String update() {
         if (currentPost.getId() == 0) {
-            dao.create(currentPost.getTitle(), currentPost.getContent(),
+            currentPost = dao.create(currentPost.getTitle(), currentPost.getContent(),
                     currentPost.getUser());
         } else {
             currentPost = dao.update(currentPost.getId(),
@@ -60,5 +67,14 @@ public class BlogManager implements Serializable {
 
     public Post getCurrent() {
         return currentPost;
+    }
+
+    public String addComment() {
+        cdao.create(comment.getAuthor(), comment.getContent(),
+                currentPost.getId());
+        comment.setAuthor("");
+        comment.setContent("");
+        return "view";
+
     }
 }
