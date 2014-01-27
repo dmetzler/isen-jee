@@ -1,1 +1,37 @@
-= JSF =
+JEE, en plus des servlets et des JSP, offre un framework d'interface permettant de générer des pages web à l'aide de composants, ce framework s'appelle JSF.
+
+# Framework web #
+
+L'objectif d'un framework web est double. Dans un premier temps, il doit permettre d'afficher des pages webs reflétant les valeurs de l'état d'une application : par exemple le chiffre d'affaire d'un commerce pour chaque famille de produit. Dans un second temps, il doit aussi permettre de réagir aux interactions de l'utilisateur : pour passer d'une page à l'autre, pour effectuer des actions etc...
+
+Dans le monde des servlets et des JSP, il appartient au développeur d'utiliser les différents mécanimsmes dont il dispose pour gérer les actions (paramètre de requête, session web etc...). JSF propose un mécanisme à part entière basé sur les composants web qu'il définit et les EJB d'actions. L'état est quant à lui géré du côté du serveur et les actions vont le faire changer. Quant on parle d'état, il s'agit aussi bien de valeurs comme l'utilisateur courant, mais aussi de la page courante ce qui a tendance à être un peu compliqué à comprendre
+
+# Composants web #
+
+JSF est basé sur des composants web. Une page web sera rédigée à l'aide de ces composants, dont la plupart surchargent les balises HTML. Par exemple au lieu d'écrire :
+
+{{code}}
+<form method="post">
+<input type="text" name="myField" value="myValue"/>
+</form>
+{{/code}}
+
+On utilisera le composant JSF suivant
+
+{{code}}
+<h:form>
+<h:inputText value="#{myBean.field}" />
+</h:form>
+{{/code}}
+
+Le composant est ainsi lié à la valeur ##field## du bean ##myBean## et ce dans les deux sens. Si on soumet le formulaire, la valeur de l'input sera appliquée au bean. Lorsqu'on l'affichera, c'est la valeur du bean qui s'y retrouvera.
+
+Cette notion de composant est assez complexe, et JSF possède un cycle de vie bien particulier pour appliquer les valeurs et exécuter les actions correspondantes
+
+
+#TODO
+
+
+
+
+

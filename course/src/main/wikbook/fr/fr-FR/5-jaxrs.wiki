@@ -1,1 +1,136 @@
-= JAX-RS =
+Pour exposer les services d'une application dans le monde web, il existe un style de service que l'on appelle les services REST. Cela signifie *REpresentational State Transfer* : c'est un style d'architecture de service  qui s'appuie sur les méthodes du protocole HTTP pour récupérer, modifier ou supprimer des ressource sur le web.
+
+Effectivement, sur internet, on peut définir une adresse unique pour une ressource, et y appliquer les différentes verbes de http que sont ##GET##, ##POST##, ##PUT## ou ##DELETE##.
+
+Jax-RS est la proposition de JEE pour implémenter de tels services. On suppose qu'une ressource est associée à un objet Java sur lequel on va annoter des méthodes correspondant au différents verbes HTTP.
+
+# Activation de JAX-RS pour une application #
+
+Afin d'activer JAX-RS pour une application web, il y a deux moyens. On peut passer par le fichier ##web.xml## en spécifiant une servlet particulière :
+
+{{example title="JAX-RS : Activation par web.xml"}}
+{{code language="xml"}}
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_3_0.xsd" version="3.0">
+    <servlet>
+        <servlet-name>javax.ws.rs.core.Application</servlet-name>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>javax.ws.rs.core.Application</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+</web-app>
+{{/code}}
+{{/example}}
+
+Ici on va activer la servlet uniquement sur le endpoint ##/api/##.
+
+Depuis JEE6, comme le fichier ##web.xml## est optionnel on peut aussi annoter un classe comme l'exemple ci dessous :
+
+{{example title="JAX-RS : Activation par annotation"}}
+{{code language="java"}}
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+
+@ApplicationPath("/api")
+public class Services extends Application {
+
+}
+
+{{/code}}
+{{/example}}
+
+
+
+# Objects ressources JAVA
+
+Une fois que JAX-RS est activé pour une application, on peut utiliser les différentes annotations sur un objet. Dans cette exemple on expose les différentes méthodes du DAO:
+
+{{example title="JAX-RS : Activation par annotation"}}
+{{code language="java"}}
+import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+
+import org.isen.blog.dao.PostDAO;
+import org.isen.blog.model.Post;
+
+
+@Path("post")   //<> On parle ici des ressources à l'adresse  /monappli/api/post
+@Produces({"application/json","text/xml"})
+public class PostService {
+
+    @Inject   //<> On demande à JEE de nous injecter des beans à l'aide de CDI
+    private PostDAO dao;
+
+    @Inject
+    private CommentDAO cdao;
+
+    @POST    // <> POST permet de créer un objet
+    public Post create(Post post) {
+        return dao.create(post.getTitle(), post.getContent(), post.getUser());
+    }
+
+    @GET   // <> GET sur le endpoint va renvoyer la liste de tous les objets
+    public List<Post> list(@QueryParam("first") @DefaultValue("0") int first,
+                           @QueryParam("max") @DefaultValue("20") int max) {
+        return dao.list(first, max);
+    }
+
+    @Path("{id}") //<> On peut capturer des élement de l'url (ici /monappli/api/post/1 par exemple.)
+    public Object show(@PathParam("id") long id) {
+        return new PostResource(dao, cdao, dao.find(id)); // <> Ici on renvoit un nouvel objet de type ressource JAX-RS qui sera lui aussi annoté.
+    }
+
+
+}
+
+{{/code}}
+{{/example}}
+
+
+Grace à l'annotation ##@Produces## on spécifie que l'objet sait générer du JSON ou du XML. Pour que JEE sache sérialiser nos objet dans ce format, nous allon utiliser une autre api qui s'appelle ##JAXB## (Java API for Xml Binding). Elle permet de directement mapper un POJO java à un objet XML ou JSON. Pour cela, il suffit d'annoter l'objet avec ##@XmlRootElement##.
+
+
+{{example title="JAX-RS : Utilisation de JAXB pour la sérialisation"}}
+{{code language="java"}}
+
+@Entity
+@XmlRootElement(name = "post")
+public class Post extends DatedModel {
+
+    @NotNull
+    @Size(min = 1)
+    private String title;
+
+
+....
+
+
+{{/code}}
+{{/example}}
+
+
+# Sous-ressources JAX-RS#
+
+Dans l'objet ##Post##, nou avons vu que la méthode ##show()## renvoyait un objet de type ##PostResource##. Cette objet est lui même annoté pour pouvoir répondre au différentes requêtes web.
+
+Dans le cas d'une ressource JAX-RS, c'est le framework qui crée l'objet. L'objets est ce que l'on appelle managé, et il peut donc être injecté avec CDI automatiquement. Dans le cas de notre sous-resource, c'est nous qui créons l'objet et il ne sera donc pas injecté par le framework. C'est pour cela qu'au moment de sa construction, il faudra lui passer les différents DAO dont il aura besoin.
+
+{{note}}
+Dans le cadre de plus gros projets, il pourrait être intéressant de trouver un moyent d'automatiser l'injection de sous ressources. Certains framworks implémentant JAX-RS permettre de palier à ce problème mais malheureusement, cela ne fait pas partie de la norme
+
+{{/note}}
+
+
+
+
+
+

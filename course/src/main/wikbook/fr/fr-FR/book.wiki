@@ -20,11 +20,8 @@ L'une des promesses de *JEE* est de permettre de développer des applications we
 
 {{include document="4-jsf.wiki" /}}
 
+
 = Services web : JAX-RS =
 
 {{include document="5-jaxrs.wiki" /}}
-
-= Comment scaler : applications stateless =
-
-{{include document="6-stateless.wiki" /}}
 
