@@ -54,7 +54,7 @@ public class BlogManager implements Serializable {
 
     public String delete() {
         dao.delete(currentPost.getId());
-        return "home";
+        return "index";
     }
 
     public String edit() {

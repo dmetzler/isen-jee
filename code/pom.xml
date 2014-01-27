@@ -24,6 +24,7 @@
     <module>hello-servlet</module>
     <module>hello-servlet-course</module>
     <module>jaxrs-blog</module>
+    <module>jsf-blog</module>
 
 
   </modules>
