@@ -25,6 +25,7 @@
     <module>hello-servlet-course</module>
     <module>jaxrs-blog</module>
     <module>jsf-blog</module>
+    <module>puissance4</module>
 
 
   </modules>

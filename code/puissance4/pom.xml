@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+
+  <groupId>org.dmetzler.isen.puissance4</groupId>
+  <artifactId>puissance4-parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>ISEN JEE :: Puissance 4 parent</name>
+  <packaging>pom</packaging>
+  <description></description>
+
+
+  <properties>
+    <jetty.version>9.1.0.v20131115</jetty.version>
+    <openejb.version>4.6.0</openejb.version>
+    <tomee.version>1.6.0</tomee.version>
+  </properties>
+
+  <modules>
+    <module>puissance4-core</module>
+  </modules>
+
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.0</version>
+          <configuration>
+            <source>1.7</source>
+            <target>1.7</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.4</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.11</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>1.7.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen.puissance4</groupId>
+        <artifactId>puissance4-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+
+
+
+  </dependencyManagement>
+
+</project>
