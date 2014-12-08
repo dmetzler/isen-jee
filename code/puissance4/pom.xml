@@ -15,10 +15,12 @@
     <jetty.version>9.1.0.v20131115</jetty.version>
     <openejb.version>4.6.0</openejb.version>
     <tomee.version>1.6.0</tomee.version>
+    <selenium.version>2.44.0</selenium.version>
   </properties>
 
   <modules>
     <module>puissance4-core</module>
+    <module>puissance4-web</module>
   </modules>
 
 
@@ -42,11 +44,31 @@
             <encoding>UTF-8</encoding>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.3</version>
+          <configuration>
+            <failOnMissingWebXml>false</failOnMissingWebXml>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>net.sf.opk</groupId>
+          <artifactId>embedded-glassfish-web-plugin</artifactId>
+          <version>1.2</version>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-web-api</artifactId>
+        <version>7.0</version>
+        <scope>provided</scope>
+      </dependency>
+
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -57,6 +79,37 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>1.7.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-chrome-driver</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-firefox-driver</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-ie-driver</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-htmlunit-driver</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.dmetzler.isen.puissance4</groupId>
@@ -64,9 +117,6 @@
         <version>${project.version}</version>
       </dependency>
     </dependencies>
-
-
-
   </dependencyManagement>
 
 </project>
