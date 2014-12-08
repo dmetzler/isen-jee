@@ -1,3 +1,5 @@
+<%@ page import = "org.dmetzler.isen.puissance4.web.WebHelper" %>
+<%@ page import = "org.dmetzler.isen.puissance4.core.*" %>
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -28,70 +30,21 @@
     <div class="main container">
         <div id="board" class="ui seven column padded grid">
 
-
-            <a href="#" class="blue column">
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-            </a>
-
-            <a href="?playcol=1" class="blue column">
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-            </a>
-
-            <a href="?playcol=2" class="blue column">
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-
-            </a>
-
-            <a href="?playcol=3" class="blue column">
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon red button"></div>
-            </a>
-
-            <a href="?playcol=4" class="blue column">
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-            </a>
-
-            <a href="?playcol=5" class="blue column">
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-            </a>
-
-            <a href="?playcol=6" class="blue column">
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-                  <div class="massive circular ui icon  button"></div>
-            </a>
+          <%
+          	Puissance4Game game = WebHelper.getGame(request);
+          	for (int i = 0; i < game.getColumnsNumber(); i++) {
+          %>
+	          <a href="?playcol=<%=i%>" class="blue column">
+	          	  <% for (int j = game.getRowsNumber()-1; j >= 0; j--) {
+	          	  	    ChipColour chip = game.getCell(i,j);
+	          	  	    String colour = chip == null ? "" : chip == ChipColour.RED ? "red" : "yellow";
+	          	  %>
+	              	<div class="massive circular ui icon <%=colour %> button"></div>
+	              <% }
+          		  %>
+	          </a>
+          <% }
+          %>
         </div>
     </div>
 
