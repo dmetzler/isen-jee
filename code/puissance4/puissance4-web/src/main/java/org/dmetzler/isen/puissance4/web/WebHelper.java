@@ -10,23 +10,36 @@ import org.dmetzler.isen.puissance4.core.Puissance4GameImpl;
 public class WebHelper {
 
 
-	public static Puissance4Game getGame(HttpServletRequest request) {
+    private static final String CURRENTTURN_SESSION_KEY = "currentTurn";
+    private static final String GAME_SESSION_KEY = "game";
 
-		HttpSession session = request.getSession();
-		Puissance4Game game = (Puissance4Game) session.getAttribute("game");
-
-		if(game == null) {
-			game = new Puissance4GameImpl();
-			session.setAttribute("game", game);
-		}
-
-		String playCol = request.getParameter("playcol");
-
-		if(playCol!=null) {
-			game.play(ChipColour.RED, Integer.parseInt(playCol));
-		}
+    public static Puissance4Game getGame(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Puissance4Game game = (Puissance4Game) session.getAttribute(GAME_SESSION_KEY);
 
 
-		return game;
-	}
+        if(game == null) {
+                game = new Puissance4GameImpl();
+                session.setAttribute(GAME_SESSION_KEY, game);
+        }
+
+
+        String playCol = request.getParameter("playcol");
+
+        if(playCol!=null) {
+
+                ChipColour currentTurn = (ChipColour) session.getAttribute(CURRENTTURN_SESSION_KEY);
+                if(currentTurn == null) {
+                        currentTurn = ChipColour.RED;
+                } else {
+                        currentTurn = currentTurn == ChipColour.RED ? ChipColour.YELLOW : ChipColour.RED;
+                }
+                session.setAttribute(CURRENTTURN_SESSION_KEY, currentTurn);
+
+                game.play(currentTurn, Integer.parseInt(playCol));
+        }
+
+
+        return game;
+}
 }
