@@ -1,5 +1,7 @@
 <%@ page import = "org.dmetzler.isen.puissance4.web.WebHelper" %>
 <%@ page import = "org.dmetzler.isen.puissance4.core.*" %>
+<%@ taglib prefix="c"
+           uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -30,21 +32,14 @@
     <div class="main container">
         <div id="board" class="ui seven column padded grid">
 
-          <%
-          	Puissance4Game game = WebHelper.getGame(request);
-          	for (int i = 0; i < game.getColumnsNumber(); i++) {
-          %>
-	          <a href="?playcol=<%=i%>" class="blue column">
-	          	  <% for (int j = game.getRowsNumber()-1; j >= 0; j--) {
-	          	  	    ChipColour chip = game.getCell(i,j);
-	          	  	    String colour = chip == null ? "" : chip == ChipColour.RED ? "red" : "yellow";
-	          	  %>
-	              	<div class="massive circular ui icon <%=colour %> button"></div>
-	              <% }
-          		  %>
+          <c:forEach items="${game.columns}" var="col">
+	          <a href="?playcol=${col.index}" class="blue column">
+	          	  <c:forEach items="${col.cells}" var="cell">
+	              	<div class="massive circular ui icon ${cell.cssColor}  button"></div>
+	              </c:forEach>
 	          </a>
-          <% }
-          %>
+          </c:forEach>
+
         </div>
     </div>
 
