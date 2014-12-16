@@ -19,18 +19,15 @@ public class Puissance4Bean implements Serializable {
 
     ChipColour currentTurn = ChipColour.RED;
 
-
     public List<Puissance4Column> getColumns() {
 
         List<Puissance4Column> cols = new ArrayList<>();
-        for(int i= 0; i< game.getColumnsNumber();i++) {
+        for (int i = 0; i < game.getColumnsNumber(); i++) {
             cols.add(new Puissance4Column(i, game));
         }
         return cols;
 
-
     }
-
 
     public void play(int col) {
         game.play(currentTurn, col);
@@ -38,10 +35,26 @@ public class Puissance4Bean implements Serializable {
 
     }
 
-
     private void switchTurn() {
-        currentTurn = currentTurn == ChipColour.RED ? ChipColour.YELLOW : ChipColour.RED;
+        currentTurn = currentTurn == ChipColour.RED ? ChipColour.YELLOW
+                : ChipColour.RED;
     }
 
+    public void reset() {
+        game = new Puissance4GameImpl();
+
+    }
+
+    public ChipColourWrapper getWinner() {
+        if (game.getWinner() != null) {
+            return new ChipColourWrapper(game.getWinner());
+        } else {
+            return null;
+        }
+    }
+
+    public Puissance4Game getGame() {
+        return game;
+    }
 
 }

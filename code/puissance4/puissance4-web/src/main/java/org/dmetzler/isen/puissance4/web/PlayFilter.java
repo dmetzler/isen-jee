@@ -27,8 +27,11 @@ public class PlayFilter implements Filter{
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        String playCol = request.getParameter("playcol");
+        if(request.getParameter("reset") !=null) {
+            game.reset();
+        }
 
+        String playCol = request.getParameter("playcol");
         if(playCol!=null) {
             game.play(Integer.parseInt(playCol));
         }

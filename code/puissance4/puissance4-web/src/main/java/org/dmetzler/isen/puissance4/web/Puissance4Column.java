@@ -18,7 +18,7 @@ public class Puissance4Column {
 
     public List<ChipColourWrapper> getCells() {
         List<ChipColourWrapper> cells = new ArrayList<>();
-        for(int i = game.getRowsNumber() ; i >= 0 ; i--) {
+        for (int i = game.getRowsNumber() - 1; i >= 0; i--) {
             cells.add(new ChipColourWrapper(game.getCell(index, i)));
         }
         return cells;
@@ -27,6 +27,5 @@ public class Puissance4Column {
     public int getIndex() {
         return index;
     }
-
 
 }

@@ -75,9 +75,9 @@ public class Puissance4GameImpl implements Puissance4Game {
     }
 
     private boolean isWinningPosition(int i, int j) {
-    	if(getCell(i,j) == null) {
-    		return false;
-    	}
+        if(getCell(i,j) == null) {
+            return false;
+        }
         return isVerticalWinningPosition(i, j) ||
                 isDiagonalWinningPosition(i, j) ||
                 isHorizontalWinningPosition(i, j);
@@ -95,7 +95,7 @@ public class Puissance4GameImpl implements Puissance4Game {
 
         ChipColour cell = getCell(i, j);
         boolean result = true;
-        for (int k = 1; result == true && k < NUMBER_OF_CHIP_TO_ALIGN - 1; k++) {
+        for (int k = 1; result == true && k < NUMBER_OF_CHIP_TO_ALIGN ; k++) {
             result = result && cell == getCell(i + k, j);
         }
         return result;
@@ -111,7 +111,7 @@ public class Puissance4GameImpl implements Puissance4Game {
         }
         ChipColour cell = getCell(i, j);
         boolean result = true;
-        for (int k = 1; result == true && k < NUMBER_OF_CHIP_TO_ALIGN - 1; k++) {
+        for (int k = 1; result == true && k < NUMBER_OF_CHIP_TO_ALIGN ; k++) {
             int sign = direction ? 1 : -1;
             result = result && cell == getCell(i + k * sign, j + k * sign);
         }
@@ -129,7 +129,7 @@ public class Puissance4GameImpl implements Puissance4Game {
 
         ChipColour cell = getCell(i, j);
         boolean result = true;
-        for (int k = 1; result == true && k < NUMBER_OF_CHIP_TO_ALIGN - 1; k++) {
+        for (int k = 1; result == true && k < NUMBER_OF_CHIP_TO_ALIGN ; k++) {
             result = result && cell == getCell(i, j + k);
         }
         return result;
