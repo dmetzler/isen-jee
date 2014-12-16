@@ -1,13 +1,12 @@
 package org.dmetzler.isen.puissance4.core;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.dmetzler.isen.puissance4.core.ChipColour.RED;
 import static org.dmetzler.isen.puissance4.core.ChipColour.YELLOW;
-import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Created by dmetzler on 03/09/2014.
