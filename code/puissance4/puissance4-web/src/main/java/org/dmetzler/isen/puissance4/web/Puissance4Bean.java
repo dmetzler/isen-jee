@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.SessionScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.dmetzler.isen.puissance4.core.ChipColour;
@@ -12,10 +13,13 @@ import org.dmetzler.isen.puissance4.core.Puissance4Game;
 import org.dmetzler.isen.puissance4.core.Puissance4GameImpl;
 
 @Named("game")
-@SessionScoped
+@RequestScoped
 public class Puissance4Bean implements Serializable {
 
     Puissance4Game game = new Puissance4GameImpl();
+
+    @Inject
+    Puissance4DAO dao;
 
     ChipColour currentTurn = ChipColour.RED;
 
@@ -55,6 +59,20 @@ public class Puissance4Bean implements Serializable {
 
     public Puissance4Game getGame() {
         return game;
+    }
+
+    public void createNewGame() {
+        game = dao.createNewGame();
+
+    }
+
+    public String getToken() {
+        return game.getToken();
+    }
+
+    public void loadFromToken(String token) {
+        game = dao.loadFromToken(token);
+
     }
 
 }
