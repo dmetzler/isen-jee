@@ -12,6 +12,7 @@
 
 
   <properties>
+    <jee.version>7.0</jee.version>
     <jetty.version>9.1.0.v20131115</jetty.version>
     <openejb.version>4.6.0</openejb.version>
     <tomee.version>1.6.0</tomee.version>
@@ -20,6 +21,7 @@
 
   <modules>
     <module>puissance4-core</module>
+    <module>puissance4-jpa</module>
     <module>puissance4-web</module>
   </modules>
 
@@ -65,7 +67,14 @@
       <dependency>
         <groupId>javax</groupId>
         <artifactId>javaee-web-api</artifactId>
-        <version>7.0</version>
+        <version>${jee.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>${jee.version}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -111,9 +120,84 @@
         <version>${selenium.version}</version>
         <scope>test</scope>
       </dependency>
+
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.inject</groupId>
+        <artifactId>guice</artifactId>
+        <version>3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.persistence</groupId>
+        <artifactId>persistence-api</artifactId>
+        <version>1.0.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-entitymanager</artifactId>
+        <version>4.3.7.Final</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>4.3.7.Final</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>dom4j</groupId>
+        <artifactId>dom4j</artifactId>
+        <version>1.6.1</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.transaction</groupId>
+        <artifactId>jta</artifactId>
+        <version>1.1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.6.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>1.6.0</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>1.3.148</version>
+        <scope>test</scope>
+      </dependency>
+
       <dependency>
         <groupId>org.dmetzler.isen.puissance4</groupId>
         <artifactId>puissance4-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.dmetzler.isen.puissance4</groupId>
+        <artifactId>puissance4-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

@@ -64,6 +64,10 @@
       <artifactId>puissance4-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.dmetzler.isen.puissance4</groupId>
+      <artifactId>puissance4-jpa</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-web-api</artifactId>
     </dependency>
@@ -71,6 +75,12 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <artifactId>commons-lang</artifactId>
+      <groupId>commons-lang</groupId>
     </dependency>
 
     <dependency>
