@@ -2,6 +2,7 @@ package org.dmetzler.isen.puissance4.jpa;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.apache.commons.lang.RandomStringUtils;
 
@@ -25,6 +26,8 @@ public class Puissance4DAO {
         Game game = (Game) em
                 .createQuery("SELECT g FROM Game g WHERE g.token = :token")
                 .setParameter("token", token).getSingleResult();
+
+        em.createNativeQuery("").getResultList();
         return new Puissance4Adapter(this, game);
     }
 

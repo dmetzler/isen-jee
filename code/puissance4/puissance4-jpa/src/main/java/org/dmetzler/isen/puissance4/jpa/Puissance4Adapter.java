@@ -32,7 +32,7 @@ public class Puissance4Adapter implements Puissance4Game {
     @Override
     public void play(ChipColour colour, int column) throws GameException {
         coreGame.play(colour, column);
-        this.game.getTurns().add(new Turn(colour,column));
+        this.game.getTurns().add(new Turn(this.game, colour,column));
 
         dao.save(game);
 
