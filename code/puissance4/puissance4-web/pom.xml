@@ -67,10 +67,7 @@
       <groupId>org.dmetzler.isen.puissance4</groupId>
       <artifactId>puissance4-jpa</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.dmetzler.isen.puissance4</groupId>
-      <artifactId>puissance4-rest</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-web-api</artifactId>

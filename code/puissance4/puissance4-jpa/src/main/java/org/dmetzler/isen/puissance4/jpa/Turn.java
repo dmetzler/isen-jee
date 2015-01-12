@@ -1,5 +1,6 @@
 package org.dmetzler.isen.puissance4.jpa;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,6 +20,8 @@ public class Turn {
     Game game;
 
     private String colour;
+
+    @Column(name="col")
     private int column;
 
     public Turn() {

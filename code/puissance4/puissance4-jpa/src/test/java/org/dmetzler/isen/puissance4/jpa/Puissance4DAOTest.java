@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(GuiceRunner.class)
-@Modules({H2DBModule.class})
+@Modules({H2DBModule.class, JPAModule.class})
 public class Puissance4DAOTest {
 
     @Inject
