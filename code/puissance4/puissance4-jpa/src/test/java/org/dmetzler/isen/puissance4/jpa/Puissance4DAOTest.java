@@ -12,9 +12,8 @@ import org.dmetzler.isen.puissance4.jpa.guice.Modules;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
 @RunWith(GuiceRunner.class)
-@Modules({H2DBModule.class, JPAModule.class})
+@Modules({ H2DBModule.class, JPAModule.class })
 public class Puissance4DAOTest {
 
     @Inject
@@ -22,7 +21,6 @@ public class Puissance4DAOTest {
 
     @Inject
     Puissance4DAO dao;
-
 
     @Test
     public void daoIsInjected() throws Exception {
@@ -42,7 +40,6 @@ public class Puissance4DAOTest {
 
     }
 
-
     @Test
     public void itCanPlayWithAJPAGame() throws Exception {
         Puissance4Adapter game = dao.createNewGame();
@@ -59,7 +56,6 @@ public class Puissance4DAOTest {
         assertThat(game.getCell(3, 4)).isEqualTo(ChipColour.RED);
         String token = game.getToken();
 
-
         em.clear();
         game = dao.loadFromToken(token);
         assertThat(game).isNotNull();
@@ -69,6 +65,19 @@ public class Puissance4DAOTest {
         assertThat(game.getCell(3, 3)).isEqualTo(ChipColour.YELLOW);
         assertThat(game.getCell(3, 4)).isEqualTo(ChipColour.RED);
 
+    }
+
+    @Test
+    public void adapterManagesTurns() throws Exception {
+        Puissance4Adapter game = dao.createNewGame();
+        assertThat(game.getCurrentTurn()).isNotNull();
+        assertThat(game.getCurrentTurn()).isEqualTo(ChipColour.RED);
+        game.play(game.getCurrentTurn(), 3);
+        game = dao.loadFromToken(game.getToken());
+        assertThat(game.getCurrentTurn()).isEqualTo(ChipColour.YELLOW);
+        game.play(game.getCurrentTurn(), 3);
+        game = dao.loadFromToken(game.getToken());
+        assertThat(game.getCurrentTurn()).isEqualTo(ChipColour.RED);
 
     }
 }

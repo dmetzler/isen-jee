@@ -23,7 +23,6 @@ public class Puissance4Bean implements Serializable {
     @Inject
     Puissance4DAO dao;
 
-    ChipColour currentTurn = ChipColour.RED;
 
     public List<Puissance4Column> getColumns() {
 
@@ -36,15 +35,11 @@ public class Puissance4Bean implements Serializable {
     }
 
     public void play(int col) {
-        game.play(currentTurn, col);
-        switchTurn();
+        game.play(game.getCurrentTurn(), col);
 
     }
 
-    private void switchTurn() {
-        currentTurn = currentTurn == ChipColour.RED ? ChipColour.YELLOW
-                : ChipColour.RED;
-    }
+
 
     public void reset() {
 
