@@ -10,19 +10,29 @@ public class Puissance4DAO {
     @Inject
     EntityManager em;
 
-    public JPAPuissance4Game createNewGame() {
-        JPAPuissance4Game game = new JPAPuissance4Game();
+    public Puissance4Adapter createNewGame() {
+
+        Game game = new Game();
         game.setToken(RandomStringUtils.randomAlphanumeric(10).toLowerCase());
         em.getTransaction().begin();
         em.persist(game);
         em.getTransaction().commit();
 
-        return game;
+        return new Puissance4Adapter(this, game);
     }
 
-    public JPAPuissance4Game loadFromToken(String token) {
-        return (JPAPuissance4Game) em.createQuery("SELECT g FROM Game g WHERE g.token = :token")
+    public Puissance4Adapter loadFromToken(String token) {
+        Game game = (Game) em
+                .createQuery("SELECT g FROM Game g WHERE g.token = :token")
                 .setParameter("token", token).getSingleResult();
+        return new Puissance4Adapter(this, game);
+    }
+
+    public void save(Game game) {
+        em.getTransaction().begin();
+        em.merge(game);
+        em.getTransaction().commit();
+
     }
 
 }

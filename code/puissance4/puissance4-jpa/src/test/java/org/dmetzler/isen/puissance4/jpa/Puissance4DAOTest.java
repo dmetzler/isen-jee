@@ -31,7 +31,7 @@ public class Puissance4DAOTest {
 
     @Test
     public void itCanCreateAGame() throws Exception {
-        JPAPuissance4Game game = dao.createNewGame();
+        Puissance4Adapter game = dao.createNewGame();
         assertThat(game).isNotNull();
 
         String token = game.getToken();
@@ -45,7 +45,7 @@ public class Puissance4DAOTest {
 
     @Test
     public void itCanPlayWithAJPAGame() throws Exception {
-        JPAPuissance4Game game = dao.createNewGame();
+        Puissance4Adapter game = dao.createNewGame();
         game.play(ChipColour.RED, 3);
         game.play(ChipColour.RED, 3);
         game.play(ChipColour.YELLOW, 3);
