@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,7 +25,7 @@ public class Game {
 
     private String token;
 
-    @OneToMany(mappedBy="game", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy="game", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
     @OrderColumn(name="index")
     private List<Turn> turns = new ArrayList<>();
 
