@@ -1,12 +1,10 @@
-<%@ page import = "org.dmetzler.isen.puissance4.web.WebHelper" %>
-<%@ page import = "org.dmetzler.isen.puissance4.core.*" %>
 <%@ taglib prefix="c"
            uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.0.0/semantic.min.css" />
-   <link rel="stylesheet" href="css/main.css">
+   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/semantic.min.css" />
+   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
 </head>
 
 <body id="example" class="site">

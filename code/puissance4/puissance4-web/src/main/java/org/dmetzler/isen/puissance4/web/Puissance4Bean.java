@@ -11,6 +11,7 @@ import javax.inject.Named;
 import org.dmetzler.isen.puissance4.core.ChipColour;
 import org.dmetzler.isen.puissance4.core.Puissance4Game;
 import org.dmetzler.isen.puissance4.core.Puissance4GameImpl;
+import org.dmetzler.isen.puissance4.jpa.Puissance4DAO;
 
 @Named("game")
 @RequestScoped

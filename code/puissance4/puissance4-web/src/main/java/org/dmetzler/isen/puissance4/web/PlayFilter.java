@@ -11,11 +11,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
-@WebFilter(urlPatterns="/*", filterName="playFilter")
-public class PlayFilter implements Filter{
+@WebFilter(urlPatterns = "/*", filterName = "playFilter")
+public class PlayFilter implements Filter {
 
     @Inject
     Puissance4Bean game;
@@ -30,32 +31,53 @@ public class PlayFilter implements Filter{
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        String token = getTokenFromRequest((HttpServletRequest) request);
-
-        if(StringUtils.isEmpty(token) || request.getParameter("reset") !=null) {
-            game.createNewGame();
-            redirect(game.getToken());
-        } else {
-            game.loadFromToken(token);
-
-            String playCol = request.getParameter("playcol");
-            if(playCol!=null) {
-                game.play(Integer.parseInt(playCol));
-            }
-
+        if (httpRequest.getRequestURI().contains("css")) {
             chain.doFilter(request, response);
+        } else {
+
+            String token = getTokenFromRequest(httpRequest);
+
+            response.getWriter().write("Hello " + token);
+
+            if (StringUtils.isEmpty(token)
+                    || request.getParameter("reset") != null) {
+                game.createNewGame();
+                redirectToGameRoot(response, httpRequest);
+            } else {
+                game.loadFromToken(token);
+
+                String playCol = request.getParameter("playcol");
+                if (playCol != null) {
+                    game.play(Integer.parseInt(playCol));
+                    redirectToGameRoot(response, httpRequest);
+                } else {
+                    request.getRequestDispatcher("index.jsp").forward(request,
+
+                    response);
+                }
+
+            }
         }
-
-
-
-
-
 
     }
 
+    private void redirectToGameRoot(ServletResponse response,
+            HttpServletRequest httpRequest) throws IOException {
+        ((HttpServletResponse) response).sendRedirect(httpRequest
+                .getContextPath() + "/" + game.getToken());
+    }
+
     private String getTokenFromRequest(HttpServletRequest request) {
-        return request.getPathInfo().substring(1);
+        if (request == null) {
+            return "";
+        }
+
+        String token = request.getRequestURI().substring(
+                request.getContextPath().length() + 1);
+        return "index.jsp".equals(token) ? "" : token;
+
     }
 
     @Override

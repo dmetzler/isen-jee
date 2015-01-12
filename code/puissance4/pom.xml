@@ -191,6 +191,12 @@
       </dependency>
 
       <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.5.0</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.dmetzler.isen.puissance4</groupId>
         <artifactId>puissance4-core</artifactId>
         <version>${project.version}</version>
