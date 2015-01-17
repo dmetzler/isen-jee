@@ -1,8 +1,0 @@
-----------------------------------------------------------------
-2015-01-12 10:58:43.952 GMT:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.6.2.1 - (999685): instance a816c00e-014a-ddcb-ba43-0000157a9788 
-on database directory /Users/dmetzler/src/isen/isen-jee/code/puissance4/target/gfembed7160851877478743815tmp/lib/databases/embedded_default  with class loader ClassRealm[plugin>net.sf.opk:embedded-glassfish-web-plugin:1.2, parent: sun.misc.Launcher$AppClassLoader@74d01311] 
-Loaded from file:/Users/dmetzler/.m2/repository/org/glassfish/extras/glassfish-embedded-web/3.1.1/glassfish-embedded-web-3.1.1.jar
-java.vendor=Oracle Corporation
-java.runtime.version=1.7.0_40-b43
-Database Class Loader started - derby.database.classpath=''
